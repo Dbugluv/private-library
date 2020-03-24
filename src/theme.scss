@@ -1,0 +1,23 @@
+$primary-color: rgb(2, 110, 98);
+$second-color:#009688;
+$yellow-color: #FFEB3B;
+$pink-color: rgb(170,18,73);
+
+.btn-group {
+
+  .el-button--primary {
+    width: 100px;
+    margin-right: 20px;
+    background-color: #b64b38;
+    border-color: #bb5e4e;
+    color: white;
+  }
+
+  .el-button+.el-button {
+    color: #b64b38;
+  }
+}
+
+.ant-tabs-tab-active ant-tabs-tab {
+  color: red;
+}
