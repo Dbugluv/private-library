@@ -57,8 +57,8 @@ class Bookshow extends React.Component {
 
   componentDidUpdate() {
     console.log('booklist: ',this.state.bookLists)
-    let url = JSON.parse(this.state.bookLists[0].bookCover)
-    console.log('url: ',url)
+    // let url = JSON.parse(this.state.bookLists[0].bookCover)
+    // console.log('url: ',url)
   }
   
   getBookDetail() {

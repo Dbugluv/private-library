@@ -1,5 +1,7 @@
 import React from 'react'
-import { Menu, Layout, Button,Form, Input } from 'element-react'
+import axios from 'axios'
+import { Menu } from 'element-react'
+import { Form, Input, Button, message } from 'antd';
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import './Login.scss'
 import 'element-theme-default'
@@ -10,32 +12,25 @@ class Login extends React.Component{
     super(props);
     this.state = {
       registerOn: false,
-      form: {
-        pass: '',
-        checkPass: '',
-        age: ''
-      },
-      rules: {
-        pass: [
-          { required: true, message: '请输入密码', trigger: 'blur' },
-          { validator: (rule, value, callback) => {
-            if (value === '') {
-              callback(new Error('请输入密码'));
-            } else {
-              if (this.state.form.checkPass !== '') {
-                this.refs.form.validateField('checkPass');
-              }
-              callback();
-            }
-          } }
-        ]
-      }
+      userInfo: []
     };
   }
+  formRef = React.createRef();
 
   componentDidMount() {
+    axios.get('http://localhost:3000/api/userInfo')
+    .then((res) => {
+      let user = res.data
+      console.log('let ',user)
+      this.setState({
+        userInfo: user
+      })
+    })
   }
 
+  componentDidUpdate() {
+    console.log('user: ',this.state.userInfo)
+  }
   loginSubmit(e) {
     let history = this.props.history
     
@@ -51,27 +46,35 @@ class Login extends React.Component{
       }
     }); */
   }
-  // loginSubmit = async () => {
-  //   try{
-  //     const response = getTodoList();
-  //     this.setState({ todoList: response.data })
-  //   }
-  //   catch(e){
-  //     console.warn(e.message)
-  //   }
-  // }
-  
-  handleReset(e) {
-    e.preventDefault();
-  
-    this.refs.form.resetFields();
+  loginError = () => {
+    message.error('密码或账号输入错误！');
+  };
+  loginsuccess = () => {
+    message.success('登陆成功！');
+  };
+
+  handleReset() {
+    this.formRef.current.resetFields();
   }
-  
-  onChange(key, value) {
-    this.setState({
-      form: Object.assign({}, this.state.form, { [key]: value })
-    });
-  }
+
+  onFinish = values => {
+    console.log('Received values of form: ', values);
+    let users = this.state.userInfo;
+    for( var i = 0; i < users.length; i++){
+      if(values.userNumber == users[i].userNumber && values.password == users[i].password){
+        // console.log('登陆成功');
+        this.loginsuccess();
+        let history = this.props.history
+        history.push('/homepage')
+        break ;
+      }
+    }
+    if(i === users.length){
+      console.log('false!')
+      this.loginError();
+    }
+
+  };
   
   onSelect() {
     console.log('...')
@@ -83,6 +86,7 @@ class Login extends React.Component{
   }
 
   render() {
+
     return (
       <div className="main">
         <div className="main__bg"></div>
@@ -101,11 +105,10 @@ class Login extends React.Component{
           </div> )
           : ''
         }
-        
-
         <div className="content">
           {
             this.state.registerOn ?
+            //注册
             (<Form ref="form" model={this.state.form} rules={this.state.rules} labelWidth="100" className="demo-ruleForm">
             <Form.Item label="账号" prop="id">
               <Input value={this.state.form.id} placeholder="请输入账号" onChange={this.onChange.bind(this, 'id')}></Input>
@@ -115,27 +118,64 @@ class Login extends React.Component{
             </Form.Item>
             <Form.Item className="btn-group">
               <Button type="primary" onClick={this.registerSubmit.bind(this)}>提交</Button>
-              <Button onClick={this.handleReset.bind(this)}>重置</Button>
+              <Button onClick={this.handleReset.bind.bind(this)}>重置</Button>
             </Form.Item>
           </Form>)
           :
-          (<Form ref="form" model={this.state.form} rules={this.state.rules} labelWidth="100" className="demo-ruleForm">
-          <Form.Item label="账号" prop="id">
-            <Input value={this.state.form.id} placeholder="请输入账号" onChange={this.onChange.bind(this, 'id')}></Input>
-          </Form.Item>
-          <Form.Item label="密码" prop="pass">
-            <Input type="password" placeholder="请输入密码" value={this.state.form.pass} onChange={this.onChange.bind(this, 'pass')} autoComplete="off" />
-          </Form.Item>
-          <Form.Item>
-            <a className="link" href="##" onClick={this.registerChange.bind(this)}>还未注册，前往注册。</a>
-          </Form.Item>
-          <Form.Item className="btn-group">
-            <Button type="primary" onClick={this.loginSubmit.bind(this)}>登陆</Button>
-            <Button onClick={this.handleReset.bind(this)}>重置</Button>
-          </Form.Item>
-        </Form>)
-          }
-          
+          (<Form 
+            ref={this.formRef}
+            name="normal_login"
+            className="login-form"
+            initialValues={{
+              remember: true,
+            }}
+            onFinish={this.onFinish.bind(this)}
+          >
+            <Form.Item
+              name="userNumber"
+              label="账号"
+              rules={[ {pattern: /^\d*$/, message: '请输入数字',required: true} ]}
+            >
+              <Input placeholder="userNumber" />
+            </Form.Item>
+            <Form.Item
+              name="password"
+              label="密码"
+              rules={[
+                {
+                  required: true,
+                  message: '请输入您的密码！',
+                },
+              ]}
+            >
+              <Input
+                type="password"
+                placeholder="Password"
+              />
+            </Form.Item>
+            {/* <Form.Item>
+              <Form.Item name="remember" valuePropName="checked" noStyle>
+                <Checkbox>Remember me</Checkbox>
+              </Form.Item>
+      
+              <a className="login-form-forgot" href="">
+                忘记密码
+              </a>
+            </Form.Item> */}
+            <Form.Item>
+              <a className="link" href="" onClick={this.registerChange.bind(this)}>还未注册，前往注册。</a>
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" className="login-form-button">
+                登陆
+              </Button>
+              <Button type="primary" htmlType="reset" onClick={this.handleReset.bind(this)} className="login-form-button">
+                重置
+              </Button>
+            </Form.Item>
+          </Form>
+          )
+        }
         </div>
       </div>
     )

@@ -54,29 +54,36 @@ body {
   form{
     margin-top: 20px;
 
-    .el-form-item.is-required .el-form-item__label:before {
+    // .el-form-item.is-required .el-form-item__label:before {
+    //   content: '';
+    // }
+
+    // .el-button--primary {
+    //   // background-color: rgb(2, 150, 14);
+    //   // border-color: coral;;
+    // }
+
+    // .btn-group {
+    //   width: 500px;
+    //   display: flex;
+
+    //   .el-button{
+
+    //     width: 100px;
+    //     margin-right: 50px;
+    //   }
+    // }
+    .ant-form-item-label > label.ant-form-item-required::before {
       content: '';
     }
-
-    .el-button--primary {
-      // background-color: rgb(2, 150, 14);
-      // border-color: coral;;
+    .ant-form-item-control {
+      width: 300px;
     }
-
-    .btn-group {
-      width: 500px;
-      display: flex;
-
-      .el-button{
-
-        width: 100px;
-        margin-right: 50px;
-      }
-    }
-
     .link {
       color: rgb(136, 172, 238);
       text-decoration: none;
     }
   }
 }
+
+
