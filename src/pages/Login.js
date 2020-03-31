@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import './Login.scss'
 import 'element-theme-default'
 import { getTodoList } from '../api/todo';
+import Register from './Register'
 
 class Login extends React.Component{
   constructor(props) {
@@ -31,21 +32,7 @@ class Login extends React.Component{
   componentDidUpdate() {
     console.log('user: ',this.state.userInfo)
   }
-  loginSubmit(e) {
-    let history = this.props.history
-    
-    e.preventDefault();
-    history.push('/homepage')
-    /* browserHistory.push('/homepage')
-    this.refs.form.validate((valid) => {
-      if (valid) {
-        alert('submit!');
-      } else {
-        console.log('error submit!!');
-        return false;
-      }
-    }); */
-  }
+
   loginError = () => {
     message.error('密码或账号输入错误！');
   };
@@ -98,29 +85,15 @@ class Login extends React.Component{
             <Menu.Item index="3">帮助</Menu.Item>
           </Menu>
         </div>
-        { this.state.registerOn?
-          (<div>
-            <h1>Welcome to your personal library system</h1>
-            <p>随时为您服务</p>
-          </div> )
-          : ''
-        }
         <div className="content">
           {
-            this.state.registerOn ?
-            //注册
-            (<Form ref="form" model={this.state.form} rules={this.state.rules} labelWidth="100" className="demo-ruleForm">
-            <Form.Item label="账号" prop="id">
-              <Input value={this.state.form.id} placeholder="请输入账号" onChange={this.onChange.bind(this, 'id')}></Input>
-            </Form.Item>
-            <Form.Item label="密码" prop="pass">
-              <Input type="password" placeholder="请输入密码" value={this.state.form.pass} onChange={this.onChange.bind(this, 'pass')} autoComplete="off" />
-            </Form.Item>
-            <Form.Item className="btn-group">
-              <Button type="primary" onClick={this.registerSubmit.bind(this)}>提交</Button>
-              <Button onClick={this.handleReset.bind.bind(this)}>重置</Button>
-            </Form.Item>
-          </Form>)
+           this.state.registerOn?
+            (<div>
+              <h1>Welcome to your personal library system</h1>
+              <p>随时为您服务</p>
+              <Register />
+            </div> 
+            )
           :
           (<Form 
             ref={this.formRef}

@@ -19,7 +19,7 @@ class Homepage extends React.Component{
       addLibraryOn: false,
       addBookOn: false,
       showBookOn: true,
-      userInfoShow: false,
+      showUserInfo: false,
       form: {
         bookName: '',
         writer: '',
@@ -71,12 +71,9 @@ class Homepage extends React.Component{
   myLibrary() {
 
   }
+
   showUserInfo() {
     this.setState({
-      noContentHint:false,
-      addLibraryOn: false,
-      addBookOn: false,
-      showBookOn: false,
       showUserInfo: true
     })
   }
@@ -133,6 +130,19 @@ class Homepage extends React.Component{
       form: Object.assign({}, this.state.form, { [key]: value })
     });
   }
+  modalOk = e => {
+    console.log(e);
+    this.setState({
+      showUserInfo: false,
+    });
+  };
+  
+  modalCancel = e => {
+    console.log(e);
+    this.setState({
+      showUserInfo: false,
+    });
+  };
 
   render() {
     return (
@@ -162,6 +172,8 @@ class Homepage extends React.Component{
           {/* </Layout.Col> */}
         </div>
         <div className="main-content">
+          <UserInfo visible={this.state.showUserInfo} modalOk={this.modalOk} modalCancel={this.modalCancel}/>
+
         {
           this.state.noContentHint ? (
             <div className="no-content-hint">
@@ -209,10 +221,6 @@ class Homepage extends React.Component{
         {
           this.state.showBookOn ?
           ( <Bookshow /> ) : ''
-        }
-        {
-          this.state.showUserInfo ?
-          ( <UserInfo /> ) : ''
         }
         </div>
       </div>

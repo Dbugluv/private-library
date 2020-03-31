@@ -1,6 +1,5 @@
 import React from 'react'
-import { Upload, message, Button } from 'antd';
-import { UploadOutlined, LoadingOutlined, PlusOutlined } from '@ant-design/icons';
+import { Input, message, Button, Modal, Row, Col } from 'antd';
 import './UserInfo.scss'
 import 'element-theme-default'
 import userAvatar from '../img/1.jpg'
@@ -26,42 +25,39 @@ class UserInfo extends React.Component{
     super(props);
     this.state = {
       loading: false,
-      avatar: userAvatar
     }
   }
+  
+  submitName() {
 
+  }
   render() {
-    const props = {
-      name: 'file',
-      action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
-      headers: {
-        authorization: 'authorization-text',
-      },
-      beforeUpload: beforeUpload,
-      onChange(info) {
-        if (info.file.status !== 'uploading') {
-          console.log(info.file, info.fileList);
-        }
-        if (info.file.status === 'done') {
-          message.success(`${info.file.name} file uploaded successfully`);
-        } else if (info.file.status === 'error') {
-          message.error(`${info.file.name} file upload failed.`);
-        }
-      },
-    };
-
+    
+    console.log('props', this.props)
+    let {visible, modalOk, modalCancel} = this.props
     return (
-      <div className="content-style">
-        <div className="avatar">
-          <img src={userAvatar} />
-          <Upload {...props}>
-            <Button>
-              更改头像
-            </Button>
-          </Upload>
-        </div>
-        <span className="userName">Dluv</span>
+      <div>
+        <Modal
+          className="modal"
+          title="修改用户信息"
+          visible={visible}
+          onOk={modalOk}
+          onCancel={modalCancel}
+        >
+        <Row>
+          <Col>
+            <div className="avatar">
+              <img src={userAvatar}/>
+            </div>
+          </Col>
+          <Col>
+            <Button className="button">修改头像</Button>
+          </Col>
+        </Row>
+        
+        <span className="nameLabel">昵称</span> <Input className="input" defaultValue="Dluv" maxLength="10" onPressEnter={this.submitName}/>
 
+        </Modal>
       </div>
     )
   }
