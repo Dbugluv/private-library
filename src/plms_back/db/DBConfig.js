@@ -20,6 +20,20 @@ var mysql = {
   acquireTimeout: settings.queueWaitTimeout
 }
 
+var sqlConnection = function(sql,sqlArr,cb) {
+  var pool = mysql.creatPool(this.config);
+  pool.getConnection((err,conn) => {
+    console.log('123');
+    if(err) {
+      console.log('连接失败');
+      return ;
+    }
+    //事件驱动回调
+    conn.query(sql,sqlArr,cb);
+    //释放连接
+    conn.release();
+  })
+}
 
 module.exports = {
   mysql: mysql,

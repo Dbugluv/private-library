@@ -1,7 +1,19 @@
 var express = require('express');
 var app = express();
 var userInfoRouter = require('./userInfo');
-var todoRouterApp = require('./routes/app/todo');
+var proxyTable = require('../../config/proxy');
+var proxy = require('http-proxy-middleware');
+
+// Object.keys(proxyTable).forEach(function(context) {
+//   var options = proxyTable[context]
+//   if (typeof options === 'string') {
+//     options = {
+//       target: options
+//     }
+//   }
+//   app.use(proxy(options.filter || context, options));
+// })
+
 // app端设置跨域访问
 app.all('*', function(req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
@@ -11,8 +23,6 @@ app.all('*', function(req, res, next) {
   res.header('Access-Control-Allow-Credentials', 'true'); //一定要设置这一句
   next();
 });
-
-app.use('/app/todolist', todoRouterApp);
 
 app.use('/user',userInfoRouter);
 

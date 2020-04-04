@@ -14,6 +14,7 @@ var UserSQL = {
 
 var str = '';
 
+//数据库连接、数据操作
 pool.getConnection(function (err, connection) {
   connection.query(UserSQL.queryAll, function (err,result) {
     if(err){
@@ -31,3 +32,27 @@ router.get('/',function(req,res){
   res.send(str);
 })
 module.exports = router;
+
+
+/* //用户注册
+
+let regUser = async() => {
+  //检测用户是否注册
+  let sql = `insert into userInfo(userName,userNumber) value(?,?)`;
+  let sqlArr = [userName,userNumber];
+  let res = await dbConfig.sySqlConnect(sql,sqlArr);
+  if(res.affectedRow === 1) { //插入成功
+    //
+  } else {
+
+  }
+}
+
+//获取用户信息
+
+let getUser = (username) => {
+  let sql = `select * from userInfo where userId=? or userNumber=?`;
+  let sqlArr = [username];
+
+  return dbConfig.sySqlConnect(sql,sqlArr);
+} */

@@ -19,7 +19,8 @@ class Login extends React.Component{
   formRef = React.createRef();
 
   componentDidMount() {
-    axios.get('http://localhost:3000/api/userInfo')
+    this.$http.get('/user')
+    // axios.get('http://localhost:3000/api/userInfo')
     .then((res) => {
       let user = res.data
       console.log('let ',user)
@@ -27,10 +28,6 @@ class Login extends React.Component{
         userInfo: user
       })
     })
-  }
-
-  componentDidUpdate() {
-    console.log('user: ',this.state.userInfo)
   }
 
   loginError = () => {

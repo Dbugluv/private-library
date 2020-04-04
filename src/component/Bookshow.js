@@ -24,24 +24,25 @@ class Bookshow extends React.Component {
       selectedLib: '',
       error: null
     }
-    const defaultSelectValue = ''
   }
 
-  onChange(value) {
-
-    console.log(`selected ${value}`);
+  onChange(libName,libId) {
+    this.setState({
+      selectedLib: Object.assign({},libName,libId)
+    })
+    // console.log('select', libName,libId);
   }
   
   onBlur() {
-    console.log('blur');
+    // console.log('blur');
   }
   
   onFocus() {
-    console.log('focus');
+    // console.log('focus');
   }
   
   onSearch(val) {
-    console.log('search:', val);
+    // console.log('search:', val);
   }
   showDetail() {
     this.setState({
@@ -54,54 +55,40 @@ class Bookshow extends React.Component {
      .then(
        (res) => {
         this.setState((state) => {
-          console.log('ssss',state)
+          // console.log('ssss',state)
           return {
             librarys: Object.assign( [],state,res.data),
-            selectedLib: res.data[0].libName
+            selectedLib: res.data[0]
           }
         })
-      // this.defaultSelectValue = res.data[0].libName
     })
   }
-   componentDidMount() {
-    this.getBookDetail();
-    this.getLibs();
-  }
 
-  // componentDidUpdate() {
-  //   console.log('booklist: ',this.state.bookLists)
-  //   console.log('策四啊: ',this.state.librarys[0])
-  // }
-  
-  async getBookDetail() {
+  getBookDetail() {
     axios.get(`http://localhost:3000/api/books`)
     .then((res)=>{
-      // console.log('res: ',res)
+      
       this.setState({
         bookLists: res.data
         })
     })
   }
+
+  componentDidMount() {
+    this.getBookDetail();
+    this.getLibs();
+  }
+
   render() {
     const { TabPane } = Tabs;
     const { Option } = Select;
-    let defaultSelectValue = this.state.selectedLib
-    console.log('selel :', defaultSelectValue)
+    let defaultSelectValue = this.state.selectedLib.libName || this.state.selectedLib.value
+    let defaultSelectId = this.state.selectedLib.libId || parseInt(this.state.selectedLib.key)    // 拷贝过去的id变成string类型
     return (
       <div className="content-style showBook">
-         <select
-          style={{ width: 600 }}
-         >
-          {
-            this.state.librarys.map((item,index) => {
-              return (
-                <option value={item.libName}>{item.libName}</option>
-              )
-            })
-          }
-        </select> 
         <Select
           showSearch
+          value={defaultSelectValue}
           style={{ width: 600 }}
           placeholder="选择你的图书集"
           optionFilterProp="children"
@@ -113,64 +100,51 @@ class Bookshow extends React.Component {
         {
            this.state.librarys.map((item,index) => {
             return (
-              <Option value={item.libName}>{item.libName}</Option>
+              <Option key={item.libId} value={item.libName}>{item.libName}</Option>
             )
           })
          }
       </Select>
-
-        <Tabs className="tab" defaultActiveKey="2">
+        <Tabs className="tab" defaultActiveKey="1">
           <TabPane
-            tab={<span>
-                  <AppstoreOutlined />缩略图表
-                </span>}
+            tab={<span><AppstoreOutlined />缩略图表</span>}
             key="1"
           >
             <div className = "book-content">
-              { 
-                // this.state.detailOn ? <BookDetail />
-                // : (<div className="single-book" onClick={this.showDetail.bind(this)}>
-                //   <div><img src={book2} /></div>
-                //   <span>我的孤独是一座花园</span>
-                // </div>) 
-              }
               {
                 this.state.bookLists.map((item, index) => {
-                  // console.log('item! ',item)
-                  return (
-                    this.state.detailOn ? 
-                      <BookDetail bookName={item.bookName} author={item.author}
-                        /> : 
-                    <div className="single-book">
-                      <img src="item.bookCover" />
-                      <span>{item.bookName}</span>
-                    </div>)
+                  console.log('h?',typeof(defaultSelectId))
+                  if(item.ownedLibId === defaultSelectId){
+                    console.log('itemid',item.ownedLibId)
+                    return (
+                      this.state.detailOn ? 
+                        <BookDetail bookName={item.bookName} author={item.author}
+                          /> : 
+                      <div className="single-book">
+                        <img src={book3}/>
+                        {/* <img src="item.bookCover" /> */}
+                        <span>{item.bookName}</span>
+                      </div>)
+                  }
                 })
               }
-              
-              {/* <div className="single-book">
-                <div><img src={book2} /></div>
-                <span>我的孤独是一座花园</span>
-              </div>  */}
             </div>
             
           </TabPane>
           <TabPane
-            tab={<span>
-                  <MenuOutlined />详细列表
-              </span>
-            }
+            tab={<span> <MenuOutlined />详细列表</span>}
             key="2"
           >
             <div className = "book-content">
-              {/* <BookDetail /> */}
               { 
                 this.state.bookLists.map((item, index) => {
-                  return (
-                    <BookDetail bookName={item.bookName} author={item.author}
-                      buyTime={item.buyTime} brief={item.brief}
-                      />
-                  );
+                  if(item.ownedLibId === defaultSelectId){
+                    return (
+                      <BookDetail bookName={item.bookName} author={item.author}
+                        buyTime={item.buyTime} brief={item.brief}
+                        />
+                    );
+                  }
                 })
               }
             </div>
