@@ -3,6 +3,7 @@ import { Menu,
   //  Button,Form, Input 
   } from 'element-react';
 import { Form, Input, Button, message } from 'antd';
+import axios from 'axios'
 
 import './Register.scss'
 import 'element-theme-default';
@@ -10,74 +11,64 @@ class Register extends React.Component{
   constructor(props) {
     super(props);
     this.state = {
-    //   form: {
-    //     pass: '',
-    //     checkPass: '',
-    //     age: ''
-    //   },
-    //   rules: {
-    //     pass: [
-    //       { required: true, message: '请输入密码', trigger: 'blur' },
-    //       { validator: (rule, value, callback) => {
-    //         if (value === '') {
-    //           callback(new Error('请输入密码'));
-    //         } else {
-    //           if (this.state.form.checkPass !== '') {
-    //             this.refs.form.validateField('checkPass');
-    //           }
-    //           callback();
-    //         }
-    //       } }
-    //     ]
-    //   }
-    // };
+      userList: []
     }
   }
   formRef = React.createRef();
 
-  // handleSubmit(e) {
-  //   e.preventDefault();
-  
-  //   this.refs.form.validate((valid) => {
-  //     if (valid) {
-  //       alert('submit!');
-  //     } else {
-  //       console.log('error submit!!');
-  //       return false;
-  //     }
-  //   });
-  // }
-  
-  // handleReset(e) {
-  //   e.preventDefault();
-  
-  //   this.refs.form.resetFields();
-  // }
-  
-  // onChange(key, value) {
-  //   this.setState({
-  //     form: Object.assign({}, this.state.form, { [key]: value })
-  //   });
-  // }
-  
-  onSelect() {
-    console.log('...')
+  addUser(value) {
+    var baseUrl = 'http://localhost:9000/userInfo/add';
+    console.log(value);
+    var userInfo = Object.assign({},value)
+    axios.get(`${baseUrl}?userNumber=${userInfo.userNumber}&userName=${userInfo.userName}&password=${userInfo.password}`)
+        .then(res => {
+          if(res.status === 200 && res.data === 'success'){
+            message.success('注册成功！');
+          } else {
+            message.error('注册失败！')
+          }
+        })
   }
 
+  componentDidMount() {
+    axios.get('http://localhost:3000/api/userInfo')
+    .then((res) => {
+      console.log('?!affwafafafafawf',res)
+      let user = res.data
+      this.setState({
+        userList: user
+      })
+    })
+  }
 
-  registerSuccess = () => {
-    message.success('注册成功！');
+  onSelect() {
+    console.log('...')
   }
 
   handleReset() {
     this.formRef.current.resetFields();
   }
 
+  isExist(values) {
+    let exist =  this.state.userList.some( user => {
+      console.log('?????',user.userNumber === parseInt(values.userNumber))
+      return user.userNumber === parseInt(values.userNumber)
+    })
+    
+    if(exist) {
+      message.error('该用户已存在!')
+      this.handleReset();
+    }
+    
+    return exist;
+  }
+
   onFinish = values => {
-    console.log('Received values of form: ', values);  
-    this.registerSuccess();
-    let history = this.props.history
-    history.push('/homepage')
+    console.log('Received values of form: ', values);
+    let history = this.props.history;
+    let exist = this.isExist(values);
+    !exist && this.addUser(values)
+    !exist && history.push('/homepage');
   }
 
   render() {
@@ -99,18 +90,6 @@ class Register extends React.Component{
         </div>
        
         <div className="content">
-          {/* <Form ref="form" model={this.state.form} rules={this.state.rules} labelWidth="100" className="demo-ruleForm">
-            <Form.Item label="账号" prop="id">
-              <Input value={this.state.form.id} placeholder="请输入账号" onChange={this.onChange.bind(this, 'id')}></Input>
-            </Form.Item>
-            <Form.Item label="密码" prop="pass">
-              <Input type="password" placeholder="请输入密码" value={this.state.form.pass} onChange={this.onChange.bind(this, 'pass')} autoComplete="off" />
-            </Form.Item>
-            <Form.Item className="btn-group">
-              <Button type="primary" onClick={this.handleSubmit.bind(this)}>登陆</Button>
-              <Button onClick={this.handleReset.bind(this)}>重置</Button>
-            </Form.Item>
-          </Form> */}
           <Form 
             ref={this.formRef}
             name="normal_login"
@@ -120,20 +99,19 @@ class Register extends React.Component{
             }}
             onFinish={this.onFinish.bind(this)}
           >
-            
             <Form.Item
               name="userNumber"
               label="账号"
               rules={[ {pattern: /^\d*$/, message: '请输入数字',required: true} ]}
             >
-              <Input placeholder="userNumber" />
+              <Input placeholder="请输入您的帐号（最好以手机号为准）" />
             </Form.Item>
             <Form.Item
               name="userName"
               label="昵称"
               rules={[ {required: true} ]}
             >
-              <Input placeholder="userName" />
+              <Input placeholder="请输入您的用户昵称" />
             </Form.Item>
             <Form.Item
               name="password"
@@ -147,7 +125,7 @@ class Register extends React.Component{
             >
               <Input
                 type="password"
-                placeholder="Password"
+                placeholder="请输入您的密码"
               />
             </Form.Item>
             <Form.Item>

@@ -13,14 +13,18 @@ class Login extends React.Component{
     super(props);
     this.state = {
       registerOn: false,
-      userInfo: []
+      userInfo: [],
+      apiResponse: ''
     };
   }
   formRef = React.createRef();
 
+  
   componentDidMount() {
-    this.$http.get('/user')
-    // axios.get('http://localhost:3000/api/userInfo')
+    // this.callAPI();
+
+    // this.$http.get('/user')
+    axios.get('http://localhost:3000/api/userInfo')
     .then((res) => {
       let user = res.data
       console.log('let ',user)
@@ -70,7 +74,7 @@ class Login extends React.Component{
   }
 
   render() {
-
+    console.log('hhhhhh:',this.state.apiResponse)
     return (
       <div className="main">
         <div className="main__bg"></div>
@@ -136,6 +140,7 @@ class Login extends React.Component{
               <a className="link" href="" onClick={this.registerChange.bind(this)}>还未注册，前往注册。</a>
             </Form.Item>
             <Form.Item>
+              <p className="App-intro">{this.state.apiResponse}</p>
               <Button type="primary" htmlType="submit" className="login-form-button">
                 登陆
               </Button>

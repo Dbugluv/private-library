@@ -7,7 +7,7 @@ import Homepage from './pages/Homepage'
 import './theme.scss'
 
 class App extends React.Component {
-  
+
   render() {
     
     return (

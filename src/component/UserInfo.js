@@ -33,7 +33,7 @@ class UserInfo extends React.Component{
   }
   render() {
     
-    console.log('props', this.props)
+    // console.log('props', this.props)
     let {visible, modalOk, modalCancel} = this.props
     return (
       <div>

@@ -1,5 +1,8 @@
 import React from 'react'
-import { Menu, Layout, Button,Form, Input, Checkbox, Card } from 'element-react';
+import { Menu, /* Button,Form, Input, Checkbox, */ Card } from 'element-react';
+import { Form, Input, Button, message, Radio, Popover, Icon} from 'antd';
+import {BarChartOutlined, ReadOutlined, FileAddOutlined, SettingOutlined } from '@ant-design/icons';
+
 // import { Input, Button, Checkbox } from 'antd';
 import Bookshow from '../component/Bookshow'
 import AddBookItem from '../component/AddBookItem'
@@ -11,6 +14,8 @@ import book3 from '../img/book3.jpeg'
 import book4 from '../img/book4.jpg'
 import './Homepage.scss'
 import 'element-theme-default';
+import axios from 'axios';
+
 class Homepage extends React.Component{
   constructor(props) {
     super(props);
@@ -20,64 +25,72 @@ class Homepage extends React.Component{
       addBookOn: false,
       showBookOn: true,
       showUserInfo: false,
-      form: {
-        bookName: '',
-        writer: '',
-        age: ''
-      },
-      rules: {
-        libraryName: [
-          { required: true, message: '请输入图书集名称', trigger: 'blur' },
-          { validator: (rule, value, callback) => {
-            if (value === '') {
-              callback(new Error('请输入图书集名称'));
-            } else {
-              if (this.state.form.checkPass !== '') {
-                this.refs.form.validateField('checkPass');
-              }
-              callback();
-            }
-          } }
-        ],
-      }
+      visible: false,
     }
   }
+  formRef = React.createRef();
 
   // 图书集菜单触发
 
   onSelect(index,indexPath) {
-    console.log(index,indexPath)
-    if (index === '0') {
+    // console.log(index,indexPath)
+    if (index === '4') {
       this.showUserInfo();
     }else if (index === '2-2'){
-      this.addLibrary();
+      this.showAddLibrary();
     } else if(index === '3') {
       this.addBook();
     } else if (index === '2-1') {
       this.showBook();
+    } else if (index === '5') {
+      this.jumpToLibData();
     }
   }
 
-  // 菜单激活回调。 index: 选中菜单项的 indexPath: 选中菜单项的 index path
-  onOpen() {
+  logOut = () => {
+    this.setState({
+      visible: false,
+    });
+    let history = this.props.history;
+    history.replace('/');
+  };
 
-  }
-  
-  // SubMenu 收起、展开的回调。 index: 打开的 subMenu 的 index， indexPath: 打开的 subMenu 的 index path
-  onClose() {
-  
-  }
-
-  myLibrary() {
-
-  }
+  handleVisibleChange = visible => {
+    this.setState({ visible });
+  };
 
   showUserInfo() {
     this.setState({
       showUserInfo: true
     })
   }
-  addLibrary() {
+
+  onFinish = values => {
+    console.log('Received values of form: ', values);
+    let history = this.props.history;
+    this.addLibrary(values);
+    
+    // history.push('/homepage');
+  }
+
+  addLibrary = values => {
+    console.log('图书集：', values)
+    var library = Object.assign({},values)
+    // var libName = library.libName;
+    // var libClass = library.libClass;
+    // var location = library.location;
+    var baseUrl = 'http://localhost:9000/library/add';
+    axios.get(`${baseUrl}?libName=${library.libName}&libClass=${library.libClass}&libLocation=${library.location}`)
+      .then(res => {
+        if(res.status === 200 && res.data === 'success'){
+          message.success('添加成功！');
+        } else {
+          message.error('添加失败！')
+        }
+      })
+  }
+
+  showAddLibrary = values => {
     this.setState({
       noContentHint:false,
       addLibraryOn: true,
@@ -85,8 +98,9 @@ class Homepage extends React.Component{
       showBookOn: false,
       showUserInfo: false
     })
-    console.log('...' + this.state.noContentHint)
+    // console.log('...' + this.state.noContentHint)
   } 
+
   addBook() {
     this.setState({
       noContentHint:false,
@@ -106,29 +120,16 @@ class Homepage extends React.Component{
       showUserInfo: false
     })
   }
-
-  handleSubmit(e) {
-    e.preventDefault();
-    this.refs.form.validate((valid) => {
-      if (valid) {
-        alert('submit!');
-      } else {
-        console.log('error submit!!');
-        return false;
-      }
-    });
-  }
   
-  handleReset(e) {
-    e.preventDefault();
-  
-    this.refs.form.resetFields();
+  handleReset() {  
+    this.formRef.current.resetFields();
   }
   
   onChange(key, value) {
-    this.setState({
-      form: Object.assign({}, this.state.form, { [key]: value })
-    });
+    // console.log('cahnge:',value)
+    // this.setState({
+    //   form: Object.assign({}, this.state.form, { [key]: value })
+    // });
   }
   modalOk = e => {
     console.log(e);
@@ -143,20 +144,47 @@ class Homepage extends React.Component{
       showUserInfo: false,
     });
   };
+  confirm = () => {
+
+  }
+  cancel = () => {
+
+  }
+
+  jumpToLibData() {
+    
+  }
 
   render() {
+
+    const content = (
+      <div>
+        <p>Content</p>
+        <p>Content</p>
+      </div>
+    )
+
     return (
       <div className="homepage-main">
         <div className="nav">
           {/* <Layout.Col span={6}> */}
-          <Menu defaultActive="2" onSelect={this.onSelect.bind(this)} className="el-menu-vertical-demo" onOpen={this.onOpen.bind(this)} onClose={this.onClose.bind(this)}>
+          <Menu defaultActive="2" onSelect={this.onSelect.bind(this)} className="el-menu-vertical-demo" /* onOpen={this.onOpen.bind(this)} onClose={this.onClose.bind(this)} */>
             <Menu.ItemGroup title="私人藏书管理系统" className="mainTitle">
+              
               <Menu.Item index="0" className="userInfo">
+              <Popover
+                placement="rightTop"
+                content={ <a onClick={this.logOut.bind(this)}>登出</a> }
+                visible={this.state.visible}
+                onVisibleChange={this.handleVisibleChange.bind(this)}
+              >
                 <div className="avatar"></div>
                 Dluv
+               </Popover>
+
               </Menu.Item>
             </Menu.ItemGroup>
-            <Menu.SubMenu index="2" title={<span><i className="el-icon-message"></i>图书集</span>}>
+            <Menu.SubMenu index="2" title={<span><ReadOutlined className="menu-style"/>图书集</span>} >
               <Menu.ItemGroup title="">
                 <Menu.Item index="2-1">我的图书集</Menu.Item>
               </Menu.ItemGroup>
@@ -166,8 +194,9 @@ class Homepage extends React.Component{
               </Menu.ItemGroup>
               
             </Menu.SubMenu>
-            <Menu.Item index="3"><i className="el-icon-menu"></i>添加图书</Menu.Item>
-            <Menu.Item index="4"><i className="el-icon-setting"></i>设置</Menu.Item>
+            <Menu.Item index="3"><FileAddOutlined className="menu-style"/>添加图书</Menu.Item>
+            <Menu.Item index="4"><SettingOutlined className="menu-style"/>设置</Menu.Item>
+            <Menu.Item index="5"><BarChartOutlined className="menu-style"/>我的图书数据</Menu.Item>
           </Menu>
           {/* </Layout.Col> */}
         </div>
@@ -188,23 +217,45 @@ class Homepage extends React.Component{
             <div className="content-style addLibrary">
               <h1>添加图书集</h1>
 
-              <Form ref="form" labelPosition="top" model={this.state.form} rules={this.state.rules} labelWidth="100" className="demo-ruleForm">
-                <Form.Item label="图书集名称（必填）" prop="libraryName">
-                  <Input type="bookName" value={this.state.form.bookName} onChange={this.onChange.bind(this, 'bookName')} autoComplete="off" />
+              <Form ref={this.formRef} 
+                    name="addLib"
+                    className="addLibrarys"
+                    layout = "vertical"
+                    onFinish={this.onFinish.bind(this)}>
+                <Form.Item 
+                  name="libName"
+                  label="图书集名称"
+                  rules={[
+                    {
+                      required: true,
+                      message: '请输入您的图书集名称！',
+                    },
+                  ]}>
+                  <Input placeholder="请输入您的图书集名称" type="bookName" autoComplete="off" />
                 </Form.Item>
-                <Form.Item label="所属分类" prop="libraryType">
-                  <Checkbox.Group value={this.state.form.libraryType} onChange={this.onChange.bind(this, 'libraryType')}>
-                    <Checkbox label="书籍" name="libraryType"></Checkbox>
-                    <Checkbox label="资料" name="libraryType"></Checkbox>
-                    <Checkbox label="其他" name="libraryType"></Checkbox>
-                  </Checkbox.Group>
+                <Form.Item name="libClass" label="所属分类"
+                //  rules={[
+                //   {
+                //     required: true,
+                //     message: '请输入您的图书集分类！',
+                //   },
+                // ]}
+                >
+                  <Radio.Group>
+                    <Radio value="书籍">书籍</Radio>
+                    <Radio value="资料">资料</Radio>
+                    <Radio value="其他">其他</Radio>
+                  </Radio.Group>
                 </Form.Item>
-                <Form.Item label="存放位置" prop="location">
-                  <Input value={this.state.form.location} onChange={this.onChange.bind(this, 'location')}></Input>
+                <Form.Item 
+                  label="存放位置"
+                  name="location"
+                  >
+                  <Input placeholder="请输入您图书集所处的位置" onChange={this.onChange.bind(this, 'location')}></Input>
                 </Form.Item>
                 <Form.Item className="btn-group">
-                  <Button type="primary" onClick={this.handleSubmit.bind(this)}>提交</Button>
-                  <Button onClick={this.handleReset.bind(this)}>重置</Button>
+                  <Button type="primary" htmlType="submit" >提交</Button>
+                  <Button htmlType="reset" onClick={this.handleReset.bind(this)}>重置</Button>
                 </Form.Item>
               </Form>
             </div>
