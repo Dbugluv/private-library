@@ -9,7 +9,7 @@ var router = express.Router();
 
 
 var BookSQL = {
-  insert: 'INSERT INTO books(bookName, author, location, bookCover, ownedLibId, brief, buyTime, bookType, progress, isLoan, loaner) VALUES(?,?,?,?,?,?,?,?,?,?,?)', // 插入数据
+  insert: 'INSERT INTO books(bookName, author, location, bookCover, ownedLibId, brief, buyTime, bookType, progress) VALUES(?,?,?,?,?,?,?,?,?)', // 插入数据
   drop: 'DROP TABLE books', // 删除表中所有的数据
   del: 'DELETE FROM books WHERE bookId = ?',
   queryAll: 'SELECT * FROM books', // 查找表中所有数据
@@ -18,7 +18,8 @@ var BookSQL = {
   updateBrief: 'UPDATE books SET brief = ? WHERE bookId=?',
   updateExcerpt: 'UPDATE books SET excerpt = ? WHERE bookId=?',
   editBook: 'UPDATE books SET bookName = ? , author = ? ,location = ?, brief = ?, progress =?, isLoan = ?, loaner = ? WHERE bookId=?',
-  selectByCategory: 'SELECT * FROM books WHERE bookType = ? AND ownedLibId = ?'
+  selectByCategory: 'SELECT * FROM books WHERE bookType = ? AND ownedLibId = ?',
+  selectByLibs: 'SELECT * FROM books WHERE ownedLibId = ?'
 };
 
 var str = '';
@@ -50,6 +51,26 @@ router.get('/selectByCategory', function(req, res){
     connection.query(BookSQL.selectByCategory, [bookType, ownedLibId] , function (err,result) {
       if(err){
         console.log('根据图书类别查询失败',err.message);
+      }
+      str = JSON.stringify(result);
+      console.log(str);  //数据库查询结果返回到result中
+    });
+    
+    setTimeout(function(){
+      res.send(str);
+  　　   connection.release();
+  　　 },200)
+  });
+});
+
+// 按照所处图书集查询
+router.get('/selectByLibs', function(req, res){
+  var ownedLibId = req.query.ownedLibId;
+  console.log('selectByCategory->params ',req.query)
+  pool.getConnection(function (err, connection) {
+    connection.query(BookSQL.selectByLibs, [ownedLibId] , function (err,result) {
+      if(err){
+        console.log('根据图书集查询失败',err.message);
       }
       str = JSON.stringify(result);
       console.log(str);  //数据库查询结果返回到result中
@@ -107,17 +128,17 @@ router.get('/add', function(req, res){
   var author = params.author || null;
   var location = params.location || null;
   var bookType = params.bookType || null;
-  var isLoan = params.isLoan;
+  // var isLoan = params.isLoan;
   var bookCover = params.bookCover || null;
   var ownedLibId = params.ownedLibId;
   var brief = params.brief || null;
   var buyTime = params.buyTime || null;
   var progress = params.progress || null;
-  var loaner = params.loaner;
+  // var loaner = params.loaner;
 
   var sqlSuccess;
   console.log('book-params: ',params)
-  var sqlArr = [bookName, author, location, bookCover, ownedLibId, brief, buyTime, bookType, progress, isLoan, loaner];
+  var sqlArr = [bookName, author, location, bookCover, ownedLibId, brief, buyTime, bookType, progress];
   pool.getConnection(function (err, connection) {
     connection.query(BookSQL.insert, sqlArr, function (err,result) {
       if(err){

@@ -145,9 +145,9 @@ class BookDetail extends React.Component {
     console.log(values);
     var bookInfo = Object.assign({},values)
     bookInfo.ownedLibId = 1;
-    bookInfo.isLoan === '1' ? bookInfo.location = '' : bookInfo.loaner = '';  //  保持互斥。
+    // bookInfo.isLoan === '1' ? bookInfo.location = '' : bookInfo.loaner = '';  //  保持互斥。
     axios.get(`${baseUrl}?bookName=${bookInfo.bookName}&author=${bookInfo.author}&location=${bookInfo.location
-      }&brief=${bookInfo.brief}&progress=${this.state.inputValue}&isLoan=${bookInfo.isLoan}&loaner=${bookInfo.loaner}&bookId=${this.props.bookInfo.bookId}`)
+      }&brief=${bookInfo.brief}&progress=${this.state.inputValue}&bookId=${this.props.bookInfo.bookId}`)
       .then(res => {
         console.log(res)
         if(res.status === 200 && res.data === 'success'){
@@ -170,7 +170,6 @@ class BookDetail extends React.Component {
   render() {
     let bookInfo = this.props.bookInfo;
     const { inputValue } = this.state;
-    // console.log('bookdInfo',bookInfo);
     return (
     <div style={{display: 'inline'}}>
        <Modal
@@ -202,10 +201,7 @@ class BookDetail extends React.Component {
               <span className="buyTime">购入时间：{bookInfo.buyTime}</span><br/>
               <Divider />
               <p className="brief">摘要：{bookInfo.brief !== undefined && bookInfo.brief}</p>
-              {
-                this.state.isLoan === '0' ? <span className="location">存放位置：{bookInfo.location}</span>
-                : <span className="location">借阅人：{bookInfo.loaner}</span>
-              }
+              <span className="location">存放位置：{bookInfo.location}</span>
               <br/><span className="progress">阅读进度：{bookInfo.progress}</span>
               <Divider />
             </div>
@@ -231,22 +227,22 @@ class BookDetail extends React.Component {
               <Form.Item className="editItem" label="作者" name="author">
                 <Input autoComplete="off" value={bookInfo.author} defaultValue={bookInfo.author} />
               </Form.Item>
-              <Form.Item className="editItem" label="是否已被借阅" name='isLoan'>
+              {/* <Form.Item className="editItem" label="是否已被借阅" name='isLoan'>
                 <Radio.Group onChange={this.loadChange} style={{fontSize:'12px'}}>
                   <Radio style={{fontSize:'12px'}} value={'1'}>是</Radio>
                   <Radio style={{fontSize:'12px'}} value={'0'}>否</Radio>
                 </Radio.Group>
-              </Form.Item>
-              { 
+              </Form.Item> */}
+              {/* { 
                 this.state.isLoan === '1' ?
                   <Form.Item className="editItem" label="借阅人" name="loaner">
                     <Input placeholder="请输入借阅人名称" defaultValue={bookInfo.loaner}/>
                   </Form.Item>
-                : 
+                :  */}
                 <Form.Item className="editItem" label="存放位置" name="location">
                   <Input placeholder="请输入书籍放置位置（参考：某市家中书柜第二层）" defaultValue={bookInfo.location} />
                 </Form.Item>
-              }
+              {/* } */}
               <Form.Item className="editItem" label="阅读进度">
                 <Row>
                   <Col span={12}>
@@ -291,7 +287,7 @@ class BookDetail extends React.Component {
                 // onChange={this.briefChange.bind(this)}
                 placeholder="输入摘录 (回车提交) "
                 autoSize={{ minRows: 3, maxRows: 10 }}
-              /> : <p className="brief">{bookInfo.excerpt}</p>
+              /> : ''
           }
         </div>
         {

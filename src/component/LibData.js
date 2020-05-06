@@ -12,7 +12,8 @@ class LibData extends React.Component{
       libTotalCount: 0,
       booksFromLib: [],
       bookType: [],
-      librarys: []
+      librarys: [],
+      progress: [],
     }
   }
 
@@ -20,6 +21,7 @@ class LibData extends React.Component{
     axios.get('http://localhost:9000/statistics/getBookCount')
     .then(
       res => {
+        console.log('getBookCount',res)
         let booksTotalCnt = res.data[0].count;
         let libTotalCount = res.data[1].count;
         let booksfromLib = res.data.slice(2);
@@ -68,15 +70,115 @@ class LibData extends React.Component{
         })
     })
   }
+
+  getProgress() {
+    axios.get('http://localhost:9000/statistics/getBookProgress')
+    .then(
+      (res) => {
+       console.log('getBookProgress:',res);
+        this.setState({
+         progress: res.data
+       })
+   })
+  }
+
   async componentDidMount() {
     await Promise.all([ this.getBookCount() ]);
     this.getLibs();
-    this.getBookType();
+    // this.getBookType();
+    this.getProgress();
+    
+  }
+
+  getProgressOption() {
+    let progress = this.state.progress;
+    let one,two,three,four,five;
+    if(progress[0] !== undefined)
+      one = progress[0].count;
+    if(progress[1] !== undefined)
+      two = progress[1].count;
+    if(progress[2] !== undefined)
+      three = progress[2].count;
+    if(progress[3] !== undefined)
+      four = progress[3].count;
+    if(progress[4] !== undefined)
+      five = progress[4].count;
+
+    console.log('getProgressOption->',progress,'one','two',two,'three',three,'four',four,'five',five);
+
+    const option = {
+      // backgroundColor: '#2c343c',
+
+    title: {
+        text: '阅读情况',
+        left: '40%',
+        top: 20,
+        textStyle: {
+          color: 'black'
+        }
+    },
+
+    tooltip: {
+        trigger: 'item',
+        formatter: '{a} <br/>{b} : {c} ({d}%)'
+    },
+
+    visualMap: {
+        show: false,
+        min: 0,
+        max: 100,
+        inRange: {
+          colorLightness: [0, 0.9]
+        },
+    },
+    series: [
+      {
+        width: 'auto',
+        height: 'auto',
+        name: '阅读进度',
+        type: 'pie',
+        radius: '58%',
+        data: [
+          {value: one, name: '还未开始阅读'},
+          {value: two, name: '阅读进度为0～30%'},
+          {value: three, name: '阅读进度为30%～60%'},
+          {value: four, name: '阅读进度为60%～99%'},
+          {value: five, name: '阅读完成'},
+        ].sort(function (a, b) { return a.value - b.value; }),
+        roseType: 'radius',
+        label: {
+          color: 'rgb(1, 64, 80)',
+          fonSize: '14px',
+          width:'100%',
+        },
+        labelLine: {
+            lineStyle: {
+              color: 'rgba(131, 14, 0, 0.5)'
+            },
+            smooth: 0.2,
+            length: 10,
+            length2: 20
+          },
+          itemStyle: {
+            color: 'rgb(170,18,73)',
+            shadowBlur: 200,
+            shadowColor: 'rgba(0, 0, 0, 0.2)'
+          },
+
+          animationType: 'scale',
+          animationEasing: 'elasticOut',
+          animationDelay: function (idx) {
+            return Math.random() * 200;
+          }
+      }
+    ]
+    };
+    return option;
   }
 
   getBookTypeOption() {
-    // console.log('getBookTypeOption-> bookType',this.state.bookType)
     let bookType = this.state.bookType;
+    console.log('getBookTypeOption-> bookType',this.state.bookType)
     let xiaoshuo = 0 , shige = 0, sanwen = 0, zheli = 0, lishi, other ;
     if(bookType[0] !== undefined)
       xiaoshuo = bookType[0].count;
@@ -120,7 +222,7 @@ class LibData extends React.Component{
       {
         width: 'auto',
         height: 'auto',
-        name: '访问来源',
+        name: '图书类型',
         type: 'pie',
         radius: '55%',
         data: [
@@ -146,7 +248,7 @@ class LibData extends React.Component{
           itemStyle: {
             color: '#c11231',
             shadowBlur: 200,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
+            shadowColor: 'rgba(0, 0, 0, 0.2)'
           },
 
           animationType: 'scale',
@@ -243,7 +345,7 @@ getTimeOption() {
 
   render() {
     return (
-      <div className="libData">
+      <div className="content-style libData">
         <div className="bookCnt">
           <p className="totalText">
             您过去一共收集了<span className="mainData">「{this.state.booksTotalCnt}」</span>本书。
@@ -264,7 +366,14 @@ getTimeOption() {
             />
           <p className="totalText">您过去在收集的图书类别主要集中在<span className="mainData">「小说」</span></p>
         </div>
-        
+        <div className="progress">
+          <ReactEcharts
+            className="progressCharts"
+            option={this.getProgressOption()}
+            style={{height: '400px', width: '500px',marginRight:'150px'}}
+            />
+          {/* <p className="totalText">您过去在收集的图书类别主要集中在<span className="mainData">「小说」</span></p> */}
+        </div>
         
         {/* <ReactEcharts
           option={this.getTimeOption()}

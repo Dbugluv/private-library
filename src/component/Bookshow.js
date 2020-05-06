@@ -42,7 +42,8 @@ class Bookshow extends React.Component {
     this.setState({
       selectedLib: Object.assign({},selectedLib)
     })
-    this.state.checkedBookTypeList && this.getBookByCategory(this.state.checkedBookTypeList, value.key );
+    console.log('selectChange',this.state.checkedBookTypeList,value.key)
+    this.getBookByCategory(this.state.checkedBookTypeList, value.key );
   }
   
   onBlur() {
@@ -98,18 +99,12 @@ class Bookshow extends React.Component {
   componentDidMount() {
     this.getBookDetail();
     this.getLibs();
-    // getLibCount() {
-      axios.get('http://localhost:9000/statistics/getLibCount')
-      .then(
-        res => {
-          let cnt = res.data[0];
-          this.setState({
-            // libTotalCount: cnt['count(*)']
-          })
-          // console.log('getLibCountres',res)
-        }
-      )
-    // }
+  }
+
+  componentWillReceiveProps(props) {
+    let ownedLibId = this.state.selectedLib.libId
+    console.log('ownedLibId',ownedLibId)
+    ownedLibId && this.getBookByCategory('所有',ownedLibId);
   }
 
   pageNumberOnChange = (page,pageSize) => { 
@@ -125,14 +120,28 @@ class Bookshow extends React.Component {
   }
 
   getBookByCategory(booktype, ownedLibId) {
-    if( booktype === '所有') {
-      this.getBookDetail();
+    console.log('getbookvatrgoru:',booktype,ownedLibId)
+    if( booktype === '所有' || booktype === '') {
+      var baseUrl = 'http://localhost:9000/books/selectByLibs'
+      axios.get(`${baseUrl}?ownedLibId=${ownedLibId}`)
+      .then(
+        res => {
+          console.log('getBookBylibs-res:', res)
+          this.setState({
+            bookLists: res.data,
+            showPageBookItems: res.data.slice(0,10)
+          })
+        }
+      )
+      .then(
+        console.log('showPageBookItems',this.state.showPageBookItems)
+      )
     } else {
       var baseUrl = 'http://localhost:9000/books/selectByCategory'
       axios.get(`${baseUrl}?bookType=${booktype}&ownedLibId=${ownedLibId}`)
       .then(
         res => {
-          // console.log('getBookByCategory-res:', res)
+          console.log('getBookByCategory-res:', res)
           this.setState({
             bookLists: res.data,
             showPageBookItems: res.data.slice(0,10)
@@ -179,6 +188,7 @@ class Bookshow extends React.Component {
     let selectedLib = this.state.selectedLib;
     let defaultSelectValue = this.state.selectedLib.libName;
     const bookCount = this.state.bookLists.length;
+    // console.log('bookCnt',bookCount)
 
     return (
       <div className="content-style showBook">
@@ -233,8 +243,8 @@ class Bookshow extends React.Component {
                 })
               }
             </div>
-            <Pagination simple defaultCurrent={1} current={this.state.currentPage} total={bookCount} pageSize={10}
-              onChange={this.pageNumberOnChange.bind(this)} showTotal={total => `一共有 ${bookCount} 本书`} />
+            <Pagination simple current={this.state.currentPage} total={bookCount} pageSize={10}
+              onChange={this.pageNumberOnChange.bind(this)} showTotal={ bookCount => `一共有 ${bookCount} 本书`} />
           </TabPane>
           <TabPane
             tab={<span> <MenuOutlined />详细列表</span>}
@@ -245,18 +255,14 @@ class Bookshow extends React.Component {
                 this.state.showPageBookItems.map((item, index) => {
                   if(item.ownedLibId == selectedLib.libId){
                     return (
-                      // <BookDetail bookName={item.bookName} author={item.author} bookCover={item.bookCover}
-                      //   excerpt={item.excerpt} location={item.location} loaner={item.loaner} progress={item.progress}
-                      //   buyTime={item.buyTime} brief={item.brief} bookId={item.bookId} bookChanged={this.getBookDetail.bind(this)}
-                      //   />
                       <BookDetail bookInfo={item} bookChanged={this.getBookDetail.bind(this)}/>
                     );
                   }
                 })
               }
             </div>
-            <Pagination simple defaultCurrent={1} total={bookCount} pageSize={10}
-              onChange={this.pageNumberOnChange.bind(this)} showTotal={total => `一共有 ${bookCount} 本书`} />
+            <Pagination simple current={this.state.currentPage} pageSize={10} total={bookCount} showTotal={ bookCount => `一共有 ${bookCount} 本书`}
+              onChange={this.pageNumberOnChange.bind(this)}  />
           </TabPane>
         </Tabs>
  

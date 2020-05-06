@@ -15,6 +15,7 @@ import CryptoJS from 'crypto-js';
 import Base64 from 'base-64';
 import locale from 'antd/es/date-picker/locale/zh_CN';
 import 'moment/locale/zh-cn';
+import noContentImg from '../img/no-content.jpg'
 
 const todayKey = moment().format('YYYYMMDD');
 const host = "//plms.oss-cn-shanghai.aliyuncs.com";
@@ -46,7 +47,7 @@ class AddBookItem extends React.Component {
       payImgLoading: false,
       payImgUrl: '',
       inputValue: 0,
-
+      noLibHint: false
     }
     // this.selectTime = '';
   }
@@ -75,11 +76,11 @@ class AddBookItem extends React.Component {
         return (item.libName === values.ownedLib);
     })
     var bookInfo = Object.assign({},values)
-    let isLoan = this.state.isLoan;
+    // let isLoan = this.state.isLoan;
     bookInfo.ownedLibId = 1;
     axios.get(`${baseUrl}?bookName=${bookInfo.bookName}&author=${bookInfo.author}&location=${
       bookInfo.location}&bookCover=${upLoadedBook}&ownedLibId=${ownenLib.libId}&brief=${bookInfo.brief}&buyTime=${
-      this.state.selectTime}&bookType=${bookInfo.bookType}&progress=${this.state.inputValue}&isLoan=${isLoan}&loaner=${bookInfo.loaner}`)
+      this.state.selectTime}&bookType=${bookInfo.bookType}&progress=${this.state.inputValue}`)
       .then(res => {
         console.log(res)
         if(res.status === 200 && res.data === 'success'){
@@ -99,12 +100,17 @@ class AddBookItem extends React.Component {
         res.data.map( index => {
           options[index.libId] = index.libName
         })
-        // console.log('options: ',options)
-        this.setState({
-          librarys: Object.assign( [], this.state.librarys, res.data),
-          owenedLibOptions: Object.assign( [], this.state.owenedLibOptions, options),
-          checkedOwnedLibList: res.data[0].libName  // 初始化选择默认值
-        })
+        if(res.data){
+          this.setState({
+            librarys: Object.assign( [], this.state.librarys, res.data),
+            owenedLibOptions: Object.assign( [], this.state.owenedLibOptions, options),
+            checkedOwnedLibList: res.data[0].libName  // 初始化选择默认值
+          })
+        } else {
+          this.setState({
+            noLibHint: true
+          })
+        }        
     })
   }
 
@@ -117,9 +123,8 @@ class AddBookItem extends React.Component {
   }
 
   disabledDate(cur) {
-    // let thisMonth = moment().format('YYYY-MM');
-    console.log('thismonth',cur)
-    return false
+    // console.log('thismonth',cur)
+    return cur > new Date().getTime();
   }
   handleReset() {  
     this.formRef.current.resetFields();
@@ -182,11 +187,19 @@ class AddBookItem extends React.Component {
         <div className="ant-upload-text">Upload</div>
       </div>
     );
-    const { inputValue ,isLoan} = this.state;
+    const { inputValue } = this.state;
     console.log('this.state',this.state.owenedLibOptions)
     
     return (
     <div>
+      {
+        this.state.noLibHint ?
+          <div className="no-content-hint">
+          <img src={noContentImg} />
+          <span>您还没有创建图书集哦!</span><br />
+          <span>快去建立属于您的图书集吧!</span>
+        </div>
+        :
       <Form
         name="addBook"
         ref={this.formRef} 
@@ -221,18 +234,18 @@ class AddBookItem extends React.Component {
             onChange={this.handleCheckChange.bind(this)}
           />
         </Form.Item>
-        <Form.Item label="是否已被借阅">
+        {/* <Form.Item label="是否已被借阅">
           <Radio.Group onChange={this.loadChange.bind(this)} value={isLoan} defaultValue={1}>
             <Radio value={1} >是</Radio>
             <Radio value={0}>否</Radio>
           </Radio.Group>
-        </Form.Item>
+        </Form.Item> */}
         { 
-          this.state.isLoan ? 
-            <Form.Item label="借阅人" name="loaner">
-              <Input placeholder="请输入借阅人名称" />
-            </Form.Item>
-          : 
+          // this.state.isLoan ? 
+          //   <Form.Item label="借阅人" name="loaner">
+          //     <Input placeholder="请输入借阅人名称" />
+          //   </Form.Item>
+          // : 
           <Form.Item label="存放位置" name="location">
             <Input placeholder="请输入书籍放置位置（参考：某市家中书柜第二层）" />
           </Form.Item>
@@ -280,7 +293,8 @@ class AddBookItem extends React.Component {
           {/* <DatePicker format="YYYY-MM-DD"/> */}
         </Form.Item>
         <Form.Item label="购入日期" name="buyTime">
-          <DatePicker onChange={this.timeChange.bind(this)} locale={locale} format="YYYY/MM" picker="month"/>
+          <DatePicker onChange={this.timeChange.bind(this)} locale={locale} 
+            format="YYYY/MM" picker="month" disabledDate={this.disabledDate}/>
         </Form.Item>
         <Row
           type="flex"
@@ -305,6 +319,7 @@ class AddBookItem extends React.Component {
           </Col>
         </Row>
       </Form>
+      }
     </div>
     )
   }

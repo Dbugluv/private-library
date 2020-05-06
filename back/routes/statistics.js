@@ -12,7 +12,7 @@ var StatSQL = {
   getBookCount: 
   'select count(*) as count from books UNION SELECT COUNT(*) FROM librarys UNION SELECT COUNT(*) FROM books GROUP BY ownedLibId',
   getBookType: 'SELECT COUNT(*) as count FROM books GROUP BY bookType ',
-  // getTime:'SELECT COUNT(*) FROM books WHERE buyTime like =?'
+  getBookProgress:'SELECT COUNT(*) as count FROM books WHERE progress = 0 UNION SELECT COUNT(*) FROM books WHERE progress > 0 AND progress < 30 UNION SELECT COUNT(*) FROM books WHERE progress >= 30 AND progress < 60 UNION SELECT COUNT(*) FROM books WHERE progress >= 60 AND progress < 100 UNION SELECT COUNT(*) FROM books WHERE progress =100'
 };
 
 var str = '';
@@ -25,6 +25,22 @@ router.get('/getBookCount', function(req, res){
       }
       str = JSON.stringify(result);
       console.log('getBookCount', str);  //数据库查询结果返回到result中
+    });
+    setTimeout(function(){
+　　   connection.release();
+      res.send(str);
+　　 },100)
+  });
+});
+
+router.get('/getBookProgress', function(req, res){
+  pool.getConnection(function (err, connection) {
+    connection.query(StatSQL.getBookProgress, function (err,result) {
+      if(err){
+        console.log('getBookProgress失败',err.message);
+      }
+      str = JSON.stringify(result);
+      console.log('getBookProgress', str);  //数据库查询结果返回到result中
     });
     setTimeout(function(){
 　　   connection.release();

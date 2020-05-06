@@ -7,7 +7,6 @@ import {BarChartOutlined, ReadOutlined, FileAddOutlined, SettingOutlined } from 
 import Bookshow from '../component/Bookshow'
 import AddBookItem from '../component/AddBookItem'
 import UserInfo from '../component/UserInfo'
-import noContentImg from '../img/no-content.jpg'
 import bookImg from '../img/book.jpg'
 import book2 from '../img/book1.jpg'
 import book3 from '../img/book3.jpeg'
@@ -238,19 +237,9 @@ class Homepage extends React.Component{
         <div className="main-content">
           <UserInfo payImgUrl={this.state.payImgUrl} userInfo={this.state.loginUser} visible={this.state.showUserInfo} 
             modalOk={this.modalOk} modalCancel={this.modalCancel} userInfoChanged={this.getUserInfo.bind(this)}/>
-
-        {
-          this.state.noContentHint ? (
-            <div className="no-content-hint">
-              <img src={noContentImg} />
-              <span>您还没有创建图书集哦!</span><br />
-              <span>快去建立属于您的图书集吧!</span>
-            </div>
-          ) : ''
-        }
         {
           this.state.libDataShow ?             
-            <div className="content-style LibData">
+            <div>
               <LibData userInfo={this.state.loginUser}/> 
             </div>
           : ''

@@ -1,8 +1,11 @@
+@import '../theme.scss';
+
 .libData {
   display: flex;
   flex-wrap: wrap;
   min-height: 700px;
   overflow: scroll;
+  padding: 0;
   
   .totalText {
     margin: 100px 10px 10px 40px;
