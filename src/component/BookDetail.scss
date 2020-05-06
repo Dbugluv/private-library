@@ -1,0 +1,109 @@
+@import '../theme.scss';
+
+// 详细列表
+.single-book-detail {
+  display: inline-flex;
+  width: 600px;
+  margin: 0px 25px 20px 5px;
+  padding: 10px 15px;
+  font-family: tahoma, arial, 'Hiragino Sans GB', '\5b8b\4f53', sans-serif;
+  color: black;
+  vertical-align: top;
+  border-radius: 8px;
+  box-shadow:0 2px 4px 0 rgba(31, 26, 26, 0.3), 0 0 6px 0 rgba(51, 1, 1, 0.14);
+
+  .imagecover {
+    width: 30%;
+
+    img {
+      border-radius: 10px;
+      display: inline-block;
+      width: 150px;
+      height: auto;
+      box-shadow:0 2px 4px 0 rgba(245, 195, 195, 0.3), 0 0 6px 0 rgba(32, 4, 4, 0.24);
+    }
+  }
+
+  .single-book-info {
+    margin: 0 0 0 30px;
+    width: 400px;
+    font-size: 15px;
+
+    .ant-divider-horizontal {
+      margin: 6px 0 ;
+    }
+    .bookName {
+      color: $pink-color;
+      font-weight: bold;
+    }
+    .author {
+      font-size: 16px;
+    }
+    .buyTime {
+      font-size: 14px;
+    }
+    .brief {
+      color: rgb(19, 18, 18);
+    }
+    .location {
+      font-size: 14px;
+    }
+    .progress {
+      font-size: 14px;
+    }
+  }
+
+  span {
+    font-size: 17px;
+  }
+
+  .tools {
+    margin: 0px 0px 0 10px;
+    // display: flex;
+    position: relative;
+    right: 0px;
+    top: 0px;
+    
+    .clickItem {
+      color: rgb(201, 36, 85);
+    }
+  }
+}
+
+
+.menuClick {
+  color: rgb(146, 3, 75);
+}
+
+.editConfirm {
+  bottom: 0;
+  right: 0;
+}
+
+.editBook {
+  display: flex;
+  flex-wrap: wrap;
+
+  .ant-input:placeholder-shown , .ant-input, .ant-input-number-input{
+    font-size: 12px;
+    background-color: rgb(247, 247, 247);
+
+  }
+
+  
+
+  .editItem {
+    display: inline-block;;
+    width: 350px;
+    margin: 0;
+  }
+
+  .button {
+    margin-top: 8px;
+  }
+
+}
+
+.single-book-detail span {
+  font-size: 14px;
+}

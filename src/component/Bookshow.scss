@@ -1,0 +1,119 @@
+@import '../theme.scss';
+
+.showBook {
+  overflow: scroll;
+}
+
+.tab {
+  margin-top: 30px;
+}
+.ant-tabs-nav .ant-tabs-tab:hover {
+  color: rgb(136, 138, 180);
+}
+.ant-tabs-nav .ant-tabs-tab-active {
+  color: $pink-color;
+};
+.ant-tabs-ink-bar {
+  background-color: $pink-color;
+}
+
+// 选择栏样式重构
+
+.el-input {  
+  .el-input__inner:active,.el-input__inner:focus {
+    border-color: $pink-color;
+  }
+}
+.el-select-dropdown__item.selected.hover {
+  color: $pink-color;
+  font-weight: bold;
+  background-color: white;
+}
+.el-select-dropdown.is-multiple .el-select-dropdown__item.selected.hover, .el-select-dropdown__item.hover, .el-select-dropdown__item:hover{
+  color: $pink-color;
+  background-color: rgba(170,18,73,0.02);
+  font-weight: bold;
+}
+
+.book-content{
+  margin: 30px 10px;
+  vertical-align: top;
+  
+  .single-book {
+    display: inline-block;
+    text-align: center;
+    padding: 0px 0 20px 0;
+    margin: 0 40px 20px 0;
+    max-width: 180px;
+    position: relative;
+    vertical-align: top;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow:0 2px 4px 0 rgba(0,0,0,.3), 0 0 6px 0 rgba(0,0,0,.14);
+
+    img {
+      width: 180px;
+      // height: auto;
+      height: 257px;
+    }
+  }
+
+  // 详细列表
+  // .single-book-detail {
+  //   display: flex;
+  //   width: 600px;
+  //   margin: 10px 5px;
+  //   padding: 10px 15px;
+  //   font-family: tahoma, arial, 'Hiragino Sans GB', '\5b8b\4f53', sans-serif;
+  //   color: black;
+  //   vertical-align: top;
+  //   border-radius: 8px;
+  //   box-shadow:0 2px 4px 0 rgba(31, 26, 26, 0.3), 0 0 6px 0 rgba(51, 1, 1, 0.14);
+
+  //   .imagecover {
+  //     width: 30%;
+
+  //     img {
+  //       border-radius: 10px;
+  //       display: inline-block;
+  //       width: 150px;
+  //       height: auto;
+  //       box-shadow:0 2px 4px 0 rgba(245, 195, 195, 0.3), 0 0 6px 0 rgba(32, 4, 4, 0.24);
+  //     }
+  //   }
+
+  //   .single-book-info {
+  //     margin: 0 0 0 30px;
+  //     font-size: 15px;
+
+  //     .bookName {
+  //       color: $pink-color;
+  //       font-weight: bold;
+  //     }
+  //     .author {
+  //       font-size: 16px;
+  //     }
+  //     .buyTime {
+  //       font-size: 14px;
+  //     }
+  //     .brief {
+  //       color: rgb(19, 18, 18);
+  //     }
+  //   }
+
+  //   span {
+  //     font-size: 17px;
+  //   }
+  // }
+}
+
+.select {
+  width: 500px;
+  height: 35px;
+  background-color: white;
+  margin: 0 20px 20px 0;
+}
+
+.bookSearch {
+  width: 300px;
+}
