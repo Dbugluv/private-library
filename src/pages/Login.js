@@ -53,7 +53,9 @@ class Login extends React.Component{
         // console.log('登陆成功');
         this.loginsuccess();
         let history = this.props.history
-        history.push('/homepage')
+        let id = users[i].userId
+        history.push(`/homepage/${id}`);
+
         break ;
       }
     }

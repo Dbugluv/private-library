@@ -7,7 +7,7 @@ var cors = require("cors");
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/userInfo');
-var testAPIRouter = require("./routes/testAPI");
+var staRouter = require("./routes/statistics");
 var booksRouter = require('./routes/addBook')
 var libraryRouter = require('./routes/library')
 
@@ -27,7 +27,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/userInfo', usersRouter);
-app.use("/testAPI", testAPIRouter);
+app.use('/statistics', staRouter);
 app.use('/books', booksRouter)
 app.use('/library', libraryRouter)
 

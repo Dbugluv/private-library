@@ -12,6 +12,8 @@
     "base-64": "^0.1.0",
     "cors": "^2.8.5",
     "crypto-js": "^4.0.0",
+    "echarts": "^4.7.0",
+    "echarts-for-react": "^2.0.15-beta.1",
     "element-react": "^1.4.34",
     "element-theme-default": "^1.4.13",
     "element-ui": "^2.13.0",

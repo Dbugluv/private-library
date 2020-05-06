@@ -9,10 +9,10 @@ html, body {
 
 
 .nav {
-  position: absolute;
+  position: fixed;
   left: 0;
   top: 0;
-  // bottom: 0;
+  bottom: 0;
   height: 100%;
   background-color: rgb(239, 244, 248);
   box-shadow: 10px 0 30px 0 rgba($color: #66738f, $alpha: 0.2);
@@ -38,7 +38,11 @@ html, body {
       width: 50px;
       height: 50px;
       border-radius: 50px;
-      background-color: #b64b38;
+
+      img {
+        width: 100%;
+        height: 100%;
+      }
     }
   }
   

@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios'
-import { Input, Tabs, Select, message, Pagination } from 'antd';
+import { Input, Tabs, Select, message, Pagination, Radio } from 'antd';
 import { deepClone } from '../modules'
 import { AppstoreOutlined, MenuOutlined } from '@ant-design/icons';
 import BookDetail from './BookDetail'
@@ -26,25 +26,23 @@ class Bookshow extends React.Component {
       selectedLib: '',
       error: null,
       currentPage: 1,
-      showPageBookItems: []
+      showPageBookItems: [],
+      activeKey: 1, // tab 默认标签页
+      bookTypeOptions:['小说', '诗歌', '散文', '哲理', '历史', '其他','所有'],
+      checkedBookTypeList: '',
     }
   }
   book = [];
 
-  selectChange(libName,libId) {
+  selectChange(libName,value) {
+    let selectedLib = {
+      libName: libName,
+      libId: value.key
+    }
     this.setState({
-      selectedLib: Object.assign({},libName,libId)
+      selectedLib: Object.assign({},selectedLib)
     })
-    /* console.log('selectChange:',this.state.selectedLib);
-    let defaultSelectId = this.state.selectedLib.libId || parseInt(this.state.selectedLib.key)    // 拷贝过去的id变成string类型
-
-    this.state.bookLists.map((item, index) => {
-      if(item.ownedLibId === defaultSelectId){
-        this.setState({
-          selectedBookList: Object.assign({},item)
-        })(console.log('selectBooklist:',this.state.selectedBookList))
-      }
-    }) */
+    this.state.checkedBookTypeList && this.getBookByCategory(this.state.checkedBookTypeList, value.key );
   }
   
   onBlur() {
@@ -66,14 +64,20 @@ class Bookshow extends React.Component {
   }
   
   getLibs() {
+    let userId = this.props.userId;
+    let libs = [];
     axios.get('http://localhost:3000/api/librarys')
      .then(
        (res) => {
-        this.setState((state) => {
-          return {
-            librarys: Object.assign( [],state,res.data),
-            selectedLib: res.data[0]  // 初始化选择默认值
+        res.data.map( item => {
+          // console.log('item:',item.ownerId === parseInt(userId))
+          if( item.ownerId === parseInt(userId)) {
+            libs.push(item);
           }
+        })
+        this.setState({
+          librarys: Object.assign( [], this.state.librarys, libs),
+          selectedLib: libs[0]  // 初始化选择默认值
         })
     })
   }
@@ -82,6 +86,7 @@ class Bookshow extends React.Component {
     axios.get(`http://localhost:9000/books/queryALl`)
     // axios.get(`http://localhost:3000/api/books`)
     .then((res)=>{
+      console.log('bookshow:res',res)
       this.setState({
         bookLists: res.data,
         showPageBookItems: res.data.slice(0,10)
@@ -89,10 +94,22 @@ class Bookshow extends React.Component {
     })
   }
 
+
   componentDidMount() {
-    console.log('bookshow!!!')
     this.getBookDetail();
     this.getLibs();
+    // getLibCount() {
+      axios.get('http://localhost:9000/statistics/getLibCount')
+      .then(
+        res => {
+          let cnt = res.data[0];
+          this.setState({
+            // libTotalCount: cnt['count(*)']
+          })
+          // console.log('getLibCountres',res)
+        }
+      )
+    // }
   }
 
   pageNumberOnChange = (page,pageSize) => { 
@@ -107,29 +124,67 @@ class Bookshow extends React.Component {
     );        
   }
 
-  findBook(value) {
-    console.log('findinfo',value,typeof(value))
-    var baseUrl = 'http://localhost:9000/books/getByName'
-    axios.get(`${baseUrl}?bookName=${value}`)
-    .then((res) => {
-      console.log('findbookapi',res);
+  getBookByCategory(booktype, ownedLibId) {
+    if( booktype === '所有') {
+      this.getBookDetail();
+    } else {
+      var baseUrl = 'http://localhost:9000/books/selectByCategory'
+      axios.get(`${baseUrl}?bookType=${booktype}&ownedLibId=${ownedLibId}`)
+      .then(
+        res => {
+          // console.log('getBookByCategory-res:', res)
+          this.setState({
+            bookLists: res.data,
+            showPageBookItems: res.data.slice(0,10)
+          })
+        }
+      )
+      .then(
+        console.log('showPageBookItems',this.state.showPageBookItems)
+      )
+    }
+    
+  }
+
+  handlebookTypeChange(e) {
+    this.setState({
+      checkedBookTypeList: e.target.value
     })
+    // console.log('booktype:',e.target.value)
+    let ownedLibId = this.state.selectedLib.libId
+    this.getBookByCategory(e.target.value, ownedLibId );
+  }
+
+  findBook(value) {
+    if(!value) {
+      this.getBookDetail()
+    } else {
+      var baseUrl = 'http://localhost:9000/books/getByName'
+      axios.get(`${baseUrl}?bookName=${value}`)
+      .then((res) => {
+        if(res && res.data){
+          this.setState({
+            showPageBookItems: res.data,
+            activeKey : 2
+          })
+        }
+      })
+    }
   }
 
   render() {
     const { TabPane } = Tabs;
     const { Option } = Select;
-    let defaultSelectValue = this.state.selectedLib.libName || this.state.selectedLib.value
-    let defaultSelectId = this.state.selectedLib.libId || parseInt(this.state.selectedLib.key)    // 拷贝过去的id变成string类型
+    // console.log('this.state.selectedLib',this.state.selectedLib,'checkedBookTypeList',this.state.checkedBookTypeList)
+    let selectedLib = this.state.selectedLib;
+    let defaultSelectValue = this.state.selectedLib.libName;
     const bookCount = this.state.bookLists.length;
-    console.log('legnth',bookCount)
-    console.log('showpagenumaud:- ',this.state.showPageBookItems)
 
     return (
       <div className="content-style showBook">
         <Select
           showSearch
-          value={defaultSelectValue}
+          value={this.state.selectedLib.value || defaultSelectValue}
           className="select"
           placeholder="选择你的图书集"
           optionFilterProp="children"
@@ -147,11 +202,18 @@ class Bookshow extends React.Component {
          }
       </Select>
       <Search
-        placeholder="输入您想要查找对书籍"
+        placeholder="输入您想要查找的书籍名称"
         onSearch={this.findBook.bind(this)}
         className="bookSearch"
-      />
-        <Tabs className="tab" defaultActiveKey="1">
+        allowClear
+      /><br/>
+      <span style={{fontSize:'12px',color:'rgb(52, 100, 98)'}}>仅查看相关类别图书：</span>
+      <Radio.Group
+        options={this.state.bookTypeOptions}
+        value={this.state.checkedBookTypeList}
+        onChange={this.handlebookTypeChange.bind(this)}
+      /> 
+        <Tabs className="tab" defaultActiveKey="2">
           <TabPane
             tab={<span><AppstoreOutlined />缩略图表</span>}
             key="1"
@@ -159,15 +221,14 @@ class Bookshow extends React.Component {
             <div className = "book-content">
               {
                 this.state.showPageBookItems.map((item, index) => {
-                  if(item.ownedLibId === defaultSelectId){
+                  if(item.ownedLibId == selectedLib.libId){
                     return (
                       this.state.detailOn[item.bookId] ? 
-                        <BookDetail bookName={item.bookName} author={item.author} bookCover ={item.bookCover}
-                          buyTime={item.buyTime} brief={item.brief}/> : 
-                      <div key={item.bookId} className="single-book" onClick={this.showDetail.bind(this,item.bookId)}>
-                        <img src={item.bookCover} />
-                        <span>{item.bookName}</span>
-                      </div>)
+                        <BookDetail bookInfo={item} bookChanged={this.getBookDetail.bind(this)} /> : 
+                        <div key={item.bookId} className="single-book" onClick={this.showDetail.bind(this,item.bookId)}>
+                          <img src={item.bookCover} />
+                          <span>{item.bookName}</span>
+                        </div>)
                   }
                 })
               }
@@ -181,18 +242,20 @@ class Bookshow extends React.Component {
           >
             <div className = "book-content">
               { 
-                this.state.bookLists.map((item, index) => {
-                  if(item.ownedLibId === defaultSelectId){
+                this.state.showPageBookItems.map((item, index) => {
+                  if(item.ownedLibId == selectedLib.libId){
                     return (
-                      <BookDetail bookName={item.bookName} author={item.author} bookCover={item.bookCover}
-                        buyTime={item.buyTime} brief={item.brief}
-                        />
+                      // <BookDetail bookName={item.bookName} author={item.author} bookCover={item.bookCover}
+                      //   excerpt={item.excerpt} location={item.location} loaner={item.loaner} progress={item.progress}
+                      //   buyTime={item.buyTime} brief={item.brief} bookId={item.bookId} bookChanged={this.getBookDetail.bind(this)}
+                      //   />
+                      <BookDetail bookInfo={item} bookChanged={this.getBookDetail.bind(this)}/>
                     );
                   }
                 })
               }
             </div>
-            <Pagination simple defaultCurrent={1} total={bookCount} pageSize={5}
+            <Pagination simple defaultCurrent={1} total={bookCount} pageSize={10}
               onChange={this.pageNumberOnChange.bind(this)} showTotal={total => `一共有 ${bookCount} 本书`} />
           </TabPane>
         </Tabs>

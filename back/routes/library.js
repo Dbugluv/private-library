@@ -16,6 +16,23 @@ var LibrarySQL = {
 
 var str = '';
 
+router.get('/queryALl', function(req, res){
+  pool.getConnection(function (err, connection) {
+    connection.query(LibrarySQL.queryAll, function (err,result) {
+      if(err){
+        console.log('失败',err.message);
+      }
+      str = JSON.stringify(result);
+      // console.log(str);  //数据库查询结果返回到result中
+    });
+    
+    setTimeout(function(){
+      res.send(str);
+  　　   connection.release();
+  　　 },200)
+  });
+});
+
 //获取单独信息
 router.get('/getOne/:id', function(req,res) {
   var id = req.params.id

@@ -6,15 +6,15 @@ import {
   Radio,
   Col,
   Row,
-  Upload, message, Icon
+  Upload, message, DatePicker, Slider, InputNumber
 } from 'antd';
-import { LoadingOutlined, PlusOutlined} from '@ant-design/icons';
-
-import axios from 'axios'
+import { LoadingOutlined, CloudUploadOutlined} from '@ant-design/icons';
 import moment from 'moment';
+import axios from 'axios'
 import CryptoJS from 'crypto-js';
 import Base64 from 'base-64';
-
+import locale from 'antd/es/date-picker/locale/zh_CN';
+import 'moment/locale/zh-cn';
 
 const todayKey = moment().format('YYYYMMDD');
 const host = "//plms.oss-cn-shanghai.aliyuncs.com";
@@ -35,34 +35,51 @@ class AddBookItem extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      form: {
-        bookName: '',
-        writer: '',
-        age: ''
-      },
-      checkedList: [],
+      selectTime: '',
       indeterminate: true,
-      plainOptions:['书籍', '资料', '其他'],
-      isLoad: false,
+      librarys: [],
+      bookTypeOptions:['小说', '诗歌', '散文', '哲理', '历史', '其他'],
+      checkedBookTypeList: [],
+      owenedLibOptions: [],
+      checkedOwnedLibList: [],
+      isLoan: 0,
       payImgLoading: false,
-      payImgUrl: ''
+      payImgUrl: '',
+      inputValue: 0,
+
     }
+    // this.selectTime = '';
   }
   formRef = React.createRef();
 
+  componentDidMount() {
+    this.getLibs();
+    // this.state.librarys.map( index => {
+    //   // console.log('options:',index)
+    //   let options = [];
+    //   options[index.libId] = index.libName
+    //   this.setState({
+    //     owenedLibOptions: Object.assign( [] , this.state.owenedLibOptions, options)
+    //   })
+    // })
+  }
   onFinish = values => {
-    // console.log('Received values of form: ', values);
+    console.log('form: ', values);
     this.addBooks(values);
     // let history = this.props.history;
   }
 
   addBooks = values => {
     var baseUrl = 'http://localhost:9000/books/add';
-    console.log(values);
+    let ownenLib = this.state.librarys.filter( item => {    // 拿取选中图书集的id。
+        return (item.libName === values.ownedLib);
+    })
     var bookInfo = Object.assign({},values)
-    // ${bookInfo.ownedLibId}
+    let isLoan = this.state.isLoan;
+    bookInfo.ownedLibId = 1;
     axios.get(`${baseUrl}?bookName=${bookInfo.bookName}&author=${bookInfo.author}&location=${
-      bookInfo.location}&bookCover=${upLoadedBook}&ownedLibId=1&brief=${bookInfo.brief}`)
+      bookInfo.location}&bookCover=${upLoadedBook}&ownedLibId=${ownenLib.libId}&brief=${bookInfo.brief}&buyTime=${
+      this.state.selectTime}&bookType=${bookInfo.bookType}&progress=${this.state.inputValue}&isLoan=${isLoan}&loaner=${bookInfo.loaner}`)
       .then(res => {
         console.log(res)
         if(res.status === 200 && res.data === 'success'){
@@ -73,14 +90,39 @@ class AddBookItem extends React.Component {
       })
   }
 
-  handleReset() {  
-    this.formRef.current.resetFields();
+  getLibs() {
+    axios.get('http://localhost:3000/api/librarys')
+    .then(
+      (res) => {
+        // console.log('res:',res.data)
+        let options = [], optionKeys = [];
+        res.data.map( index => {
+          options[index.libId] = index.libName
+        })
+        // console.log('options: ',options)
+        this.setState({
+          librarys: Object.assign( [], this.state.librarys, res.data),
+          owenedLibOptions: Object.assign( [], this.state.owenedLibOptions, options),
+          checkedOwnedLibList: res.data[0].libName  // 初始化选择默认值
+        })
+    })
   }
 
-  onChange(key, value) {
+  timeChange(value, dateString) {
+    console.log('Formatted Selected Time: ', dateString);
     this.setState({
-      form: Object.assign({}, this.state.form, { [key]: value })
-    });
+      selectTime: dateString
+    })
+    // this.selectTime = Object.assign({},this.selectTime,dateString);
+  }
+
+  disabledDate(cur) {
+    // let thisMonth = moment().format('YYYY-MM');
+    console.log('thismonth',cur)
+    return false
+  }
+  handleReset() {  
+    this.formRef.current.resetFields();
   }
   
   beforeUpload(file) {
@@ -97,7 +139,7 @@ class AddBookItem extends React.Component {
   loadChange = e => {
     console.log('radio checked', e.target.value);
     this.setState({
-      isLoad: e.target.value,
+      isLoan: e.target.value,
     });
   }
 
@@ -118,22 +160,31 @@ class AddBookItem extends React.Component {
       history.push('/hompage');
     }
   }
+  
+  progressChange = value => {
+    this.setState({
+      inputValue: value,
+    });
+  };
+
+  handleCheckChange(e) {
+    let id = this.state.librarys.indexOf(e.target.value);
+    // console.log('rrrr',e.target,'this.state.librarys:',this.state.librarys,'id',id);
+  }
 
   render() {
     const { TextArea } = Input;
     const uploadButton = (
       <div>
         { this.state.payImgLoading ?
-          <Button >等待</Button>
-          // <Icon type="loading" />
-          : 
-          // <Icon type="plus" />
-          <Button>上传</Button>
+          <LoadingOutlined /> : <CloudUploadOutlined />
         }
         <div className="ant-upload-text">Upload</div>
       </div>
     );
-
+    const { inputValue ,isLoan} = this.state;
+    console.log('this.state',this.state.owenedLibOptions)
+    
     return (
     <div>
       <Form
@@ -156,14 +207,28 @@ class AddBookItem extends React.Component {
         <Form.Item label="作者" name="author">
           <Input autoComplete="off" />
         </Form.Item>
-        <Form.Item label="是否已被借阅" name="isLoan">
-          <Radio.Group onChange={this.loadChange} value={this.state.isLoad}>
-            <Radio value={true}>是</Radio>
-            <Radio value={false}>否</Radio>
+        <Form.Item label="文学体裁" name="bookType">
+          <Radio.Group
+              options={this.state.bookTypeOptions}
+              value={this.state.checkedBookTypeList}
+              // onChange={this.handleCheckChange.bind(this)}
+            /> 
+        </Form.Item>
+        <Form.Item label="所属图书集" name="ownedLib">
+          <Radio.Group
+            options={this.state.owenedLibOptions}
+            value={this.state.checkedOwnedLibList}
+            onChange={this.handleCheckChange.bind(this)}
+          />
+        </Form.Item>
+        <Form.Item label="是否已被借阅">
+          <Radio.Group onChange={this.loadChange.bind(this)} value={isLoan} defaultValue={1}>
+            <Radio value={1} >是</Radio>
+            <Radio value={0}>否</Radio>
           </Radio.Group>
         </Form.Item>
         { 
-          this.state.isLoad ? 
+          this.state.isLoan ? 
             <Form.Item label="借阅人" name="loaner">
               <Input placeholder="请输入借阅人名称" />
             </Form.Item>
@@ -172,6 +237,20 @@ class AddBookItem extends React.Component {
             <Input placeholder="请输入书籍放置位置（参考：某市家中书柜第二层）" />
           </Form.Item>
         }
+        <Form.Item label="阅读进度" name="progress">
+          <Row>
+            <Col span={12}>
+              <Slider min={0} max={100} onChange={this.progressChange.bind(this)}
+                value={typeof inputValue === 'number' ? inputValue : 0}
+              />
+            </Col>
+            <Col span={4}>
+              <InputNumber min={0} max={100} style={{ margin: '0 16px' }}
+                value={inputValue} onChange={this.progressChange.bind(this)}
+              />
+            </Col>
+          </Row>
+        </Form.Item>
         <Form.Item label="图书封面" name="bookCover">
           <Upload
            action={host}
@@ -196,20 +275,12 @@ class AddBookItem extends React.Component {
            }
         </Upload> 
         </Form.Item>
-        <Form.Item label="所属图书集" name="ownedLib">
-          <Radio.Group
-            options={this.state.plainOptions}
-            value={this.state.checkedList}
-            // onChange={this.handleCheckChange.bind(this)}
-          />
-        </Form.Item>
         <Form.Item label="摘要" name="brief">
           <TextArea placeholder="请输入这本书的简介" autoSize={true} />
           {/* <DatePicker format="YYYY-MM-DD"/> */}
         </Form.Item>
         <Form.Item label="购入日期" name="buyTime">
-          <Input placeholder="参考日期格式: YYYY-MM-DD"/>
-          {/* <DatePicker format="YYYY-MM-DD"/> */}
+          <DatePicker onChange={this.timeChange.bind(this)} locale={locale} format="YYYY/MM" picker="month"/>
         </Form.Item>
         <Row
           type="flex"

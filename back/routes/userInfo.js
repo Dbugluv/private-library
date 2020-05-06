@@ -22,9 +22,11 @@ var router = express.Router();
 var UserSQL = {
   insert: 'INSERT INTO userInfo(userName,password,userNumber) VALUES(?,?,?)', // 插入数据
   drop: 'DROP TABLE userInfo', // 删除表中所有的数据
-  del: 'delete from userInfo where userId =',
+  del: 'delete from userInfo where userId = ?',
   queryAll: 'SELECT * FROM userInfo', // 查找表中所有数据
-  getUserById: 'SELECT * FROM userInfo WHERE userId =', // 查找符合条件的数据
+  getUserById: 'SELECT * FROM userInfo WHERE userId = ?', // 查找符合条件的数据
+  updateAvator: 'UPDATE userInfo SET userName=?,avator=? WHERE userId=?',
+
 };
 
 var str = '';
@@ -58,21 +60,22 @@ router.get('/', function(req, res){
 });
 
 //获取单独信息
-router.get('/getOne/:id', function(req,res) {
-  var id = req.params.id
+router.get('/getOne', function(req,res) {
+  var userId = req.query.userId
+  console.log('back-id:',userId)
   pool.getConnection(function (err, connection) {
-    connection.query(UserSQL.getUserById+id, function (err,result) {
+    connection.query(UserSQL.getUserById, [userId], function (err,result) {
       if(err){
         console.log('失败',err.message);
       }
       str = JSON.stringify(result);
-      console.log(str);  //数据库查询结果返回到result中
+      console.log('用户信息',str);  //数据库查询结果返回到result中
     });
     setTimeout(function(){
+        res.send(str)
   　　   connection.release();
   　　 },200)
   });
-  res.status(200).send('success');
 })
 
 //增加
@@ -120,39 +123,27 @@ router.get('/del/:id', function(req, res){
 });
 
 //更新用户信息
-router.get("/update/:id",function(req,res,next){
-  console.log('req.body: ',req.body,req.params.id)
-  var id = req.params.id;
-  var sql = "update userInfo set userName = '"+ 'dddddnew' +"' where userId = " + id;
+router.get("/update",function(req,res,next){
+  var params = req.query;
+  var userId = params.userId;
+  var userName = params.userName;
+  var avator = params.avator;
+  console.log('params:', params)
   pool.getConnection(function (err, connection) { 
-    connection.query(sql,function(err,result){
+    connection.query(UserSQL.updateAvator,[ userName, avator,userId],function(err,result){
       if(err){
-          res.send("修改失败 " + err);
+          res.send("更新用户信息失败 " + err);
       }else {
         str = JSON.stringify(result);
+        console.log('成功' + str)
       }
       setTimeout(function(){
   　　   connection.release();
+        res.status(200).send('success');
   　　 },200);
     });
-    res.status(200).send('success');
   })
  
-});
-
-router.post('/update', function (req, res) {
-  console.log('req.body: ',req.body)
-  var id = req.body.id;
-  var name = req.body.name;
-  pool.getConnection(function (err, connection) { 
-    connection.query("update userInfo set userName='" + name + "' where userId=" + id, function (err, rows) {
-      if (err) {
-        res.end('修改失败：' + err);
-      } else {
-        res.redirect('/users');
-      }
-    });
-  });
 });
 
 module.exports = router;

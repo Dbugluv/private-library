@@ -26,8 +26,12 @@
 
   .single-book-info {
     margin: 0 0 0 30px;
+    width: 400px;
     font-size: 15px;
 
+    .ant-divider-horizontal {
+      margin: 6px 0 ;
+    }
     .bookName {
       color: $pink-color;
       font-weight: bold;
@@ -41,10 +45,65 @@
     .brief {
       color: rgb(19, 18, 18);
     }
+    .location {
+      font-size: 14px;
+    }
+    .progress {
+      font-size: 14px;
+    }
   }
 
   span {
     font-size: 17px;
   }
+
+  .tools {
+    margin: 0px 0px 0 10px;
+    // display: flex;
+    position: relative;
+    right: 0px;
+    top: 0px;
+    
+    .clickItem {
+      color: rgb(201, 36, 85);
+    }
+  }
 }
 
+
+.menuClick {
+  color: rgb(146, 3, 75);
+}
+
+.editConfirm {
+  bottom: 0;
+  right: 0;
+}
+
+.editBook {
+  display: flex;
+  flex-wrap: wrap;
+
+  .ant-input:placeholder-shown , .ant-input, .ant-input-number-input{
+    font-size: 12px;
+    background-color: rgb(247, 247, 247);
+
+  }
+
+  
+
+  .editItem {
+    display: inline-block;;
+    width: 350px;
+    margin: 0;
+  }
+
+  .button {
+    margin-top: 8px;
+  }
+
+}
+
+.single-book-detail span {
+  font-size: 14px;
+}

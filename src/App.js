@@ -14,7 +14,7 @@ class App extends React.Component {
       <Router>
         <Route exact path="/" component={Login} />
         <Route path="/register" component={Register} />
-        <Route path="/homepage" component={Homepage} />
+        <Route path="/homepage/:userId" component={Homepage} />
       </Router>
     );
   }

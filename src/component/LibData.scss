@@ -1,0 +1,44 @@
+.libData {
+  display: flex;
+  flex-wrap: wrap;
+  min-height: 700px;
+  overflow: scroll;
+  
+  .totalText {
+    margin: 100px 10px 10px 40px;
+    height: 30%;
+    text-shadow: 2px 3px rgb(192, 214, 221);
+    // border: 1px solid burlywood;
+    font-size: 16px;
+    color: rgb(17, 61, 35);
+  }
+  
+  .mainData {
+    color:rgb(170,18,73);
+    font-weight: bolder;
+    font-size:18px
+  }
+
+  .bookCnt {
+    display: flex;
+    flex-wrap: nowrap;
+
+    .totalText {
+      margin-right: 200px;
+    }
+    .libCharts {
+      margin: 0px 40px 0px 100px;
+    }
+  }
+
+  .bookType {
+    display: flex;
+    flex-wrap: nowrap;
+   
+    .typeCharts {
+      margin: -10px 10px 20px 0px;
+    }
+  }
+  
+}
+

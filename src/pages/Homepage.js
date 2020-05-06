@@ -15,6 +15,7 @@ import book4 from '../img/book4.jpg'
 import './Homepage.scss'
 import 'element-theme-default';
 import axios from 'axios';
+import LibData from '../component/LibData';
 
 class Homepage extends React.Component{
   constructor(props) {
@@ -26,10 +27,37 @@ class Homepage extends React.Component{
       showBookOn: true,
       showUserInfo: false,
       visible: false,
+      owenedLibOptions: ['位置','图书类别','其他'],
+      checkedOwnedLibList: [],
+      loginUser: '',
+      payImgUrl: '',
+      libDataShow: false
     }
+    this.userId = this.props.match.params.userId
   }
   formRef = React.createRef();
 
+
+  componentDidMount() {
+    this.getUserInfo();
+  }
+  
+  getUserInfo() {
+    var baseUrl = 'http://localhost:9000/userInfo/getOne';
+    axios.get(`${baseUrl}?userId=${this.userId}`)
+      .then(res => {
+        // console.log('getUserInfo:',res)
+        if(res.status === 200 && res.data ){
+          this.setState({
+            loginUser: res.data[0],
+            payImgUrl: res.data[0].avator
+          })
+          // console.log('用户信息查询成功')
+        } else {
+          console.log('查询失败！')
+        }
+      })
+  }
   // 图书集菜单触发
 
   onSelect(index,indexPath) {
@@ -59,7 +87,7 @@ class Homepage extends React.Component{
     this.setState({ visible });
   };
 
-  showUserInfo() {
+  showUserInfo() {  //  头像设置
     this.setState({
       showUserInfo: true
     })
@@ -96,7 +124,8 @@ class Homepage extends React.Component{
       addLibraryOn: true,
       addBookOn: false,
       showBookOn: false,
-      showUserInfo: false
+      showUserInfo: false,
+      libDataShow: false
     })
     // console.log('...' + this.state.noContentHint)
   } 
@@ -107,7 +136,8 @@ class Homepage extends React.Component{
       addLibraryOn: false,
       addBookOn: true,
       showBookOn: false,
-      showUserInfo: false
+      showUserInfo: false,
+      libDataShow: false
     })
   }
 
@@ -117,7 +147,8 @@ class Homepage extends React.Component{
       addLibraryOn: false,
       addBookOn: false,
       showBookOn: true,
-      showUserInfo: false
+      showUserInfo: false,
+      libDataShow: false
     })
   }
   
@@ -144,6 +175,7 @@ class Homepage extends React.Component{
       showUserInfo: false,
     });
   };
+
   confirm = () => {
 
   }
@@ -152,17 +184,18 @@ class Homepage extends React.Component{
   }
 
   jumpToLibData() {
-    
+    this.setState({
+      noContentHint:false,
+      addLibraryOn: false,
+      addBookOn: false,
+      showBookOn: false,
+      showUserInfo: false,
+      libDataShow: true
+    })
   }
 
   render() {
-
-    const content = (
-      <div>
-        <p>Content</p>
-        <p>Content</p>
-      </div>
-    )
+    const defaultAvatar = 'https://plms.oss-cn-shanghai.aliyuncs.com/defaultAva.jpg'
 
     return (
       <div className="homepage-main">
@@ -172,14 +205,16 @@ class Homepage extends React.Component{
             <Menu.ItemGroup title="私人藏书管理系统" className="mainTitle">
               
               <Menu.Item index="0" className="userInfo">
-              <Popover
-                placement="rightTop"
-                content={ <a onClick={this.logOut.bind(this)}>登出</a> }
-                visible={this.state.visible}
-                onVisibleChange={this.handleVisibleChange.bind(this)}
-              >
-                <div className="avatar"></div>
-                Dluv
+                <Popover
+                  placement="rightTop"
+                  content={ <a onClick={this.logOut.bind(this)}>登出</a> }
+                  visible={this.state.visible}
+                  onVisibleChange={this.handleVisibleChange.bind(this)}
+                >
+                  <div className="avatar">
+                    <img src={ this.state.payImgUrl ? this.state.payImgUrl : defaultAvatar}/>
+                  </div>
+                  {this.state.loginUser.userName}
                </Popover>
 
               </Menu.Item>
@@ -201,7 +236,8 @@ class Homepage extends React.Component{
           {/* </Layout.Col> */}
         </div>
         <div className="main-content">
-          <UserInfo visible={this.state.showUserInfo} modalOk={this.modalOk} modalCancel={this.modalCancel}/>
+          <UserInfo payImgUrl={this.state.payImgUrl} userInfo={this.state.loginUser} visible={this.state.showUserInfo} 
+            modalOk={this.modalOk} modalCancel={this.modalCancel} userInfoChanged={this.getUserInfo.bind(this)}/>
 
         {
           this.state.noContentHint ? (
@@ -211,6 +247,13 @@ class Homepage extends React.Component{
               <span>快去建立属于您的图书集吧!</span>
             </div>
           ) : ''
+        }
+        {
+          this.state.libDataShow ?             
+            <div className="content-style LibData">
+              <LibData userInfo={this.state.loginUser}/> 
+            </div>
+          : ''
         }
         {
           this.state.addLibraryOn ? (
@@ -233,7 +276,7 @@ class Homepage extends React.Component{
                   ]}>
                   <Input placeholder="请输入您的图书集名称" type="bookName" autoComplete="off" />
                 </Form.Item>
-                <Form.Item name="libClass" label="所属分类"
+                <Form.Item name="libClass" label="图书集划分依据"
                 //  rules={[
                 //   {
                 //     required: true,
@@ -241,11 +284,11 @@ class Homepage extends React.Component{
                 //   },
                 // ]}
                 >
-                  <Radio.Group>
-                    <Radio value="书籍">书籍</Radio>
-                    <Radio value="资料">资料</Radio>
-                    <Radio value="其他">其他</Radio>
-                  </Radio.Group>
+                 <Radio.Group
+                    options={this.state.owenedLibOptions}
+                    value={this.state.checkedOwnedLibList}
+                    // onChange={this.handleCheckChange.bind(this)}
+                  />
                 </Form.Item>
                 <Form.Item 
                   label="存放位置"
@@ -271,7 +314,7 @@ class Homepage extends React.Component{
         }
         {
           this.state.showBookOn ?
-          ( <Bookshow /> ) : ''
+          ( <Bookshow userId={this.userId} /> ) : ''
         }
         </div>
       </div>
