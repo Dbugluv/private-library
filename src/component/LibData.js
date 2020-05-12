@@ -28,7 +28,7 @@ class LibData extends React.Component{
 
   componentWillReceiveProps(nextProps) {
     if(this.state.userInfo !== nextProps.userInfo){
-      // console.log('nextprops',nextProps.userInfo)
+      console.log('nextprops',nextProps.userInfo)
       this.setState({
         userInfo: Object.assign( {}, this.state.userInfo, nextProps.userInfo)
       })
@@ -37,12 +37,12 @@ class LibData extends React.Component{
   }
 
   getBook() {
-    // console.log('getBookuserID',this.state.userInfo)
+    console.log('getBookuserID',this.state.userInfo)
     let baseUrl = 'http://localhost:9000/books/queryByUserId'
     axios.get(`${baseUrl}?ownerId_b=${this.state.userInfo.userId}`)
     .then(
       res => {
-        console.log('getBook',res)
+        console.log('getBookgetBookgetBook',res)
         this.setState({
           books: res.data,
         })
@@ -51,7 +51,10 @@ class LibData extends React.Component{
   }
 
   getBookCount() {
-    axios.get('http://localhost:9000/statistics/getBookCount')
+    var baseUrl = 'http://localhost:9000/statistics/getBookCount'
+    let userId = this.state.userInfo.userId
+    console.log('热瓦甫',userId)
+    axios.get(`${baseUrl}?ownerId_b=${userId}&ownerId=${userId}`)
     .then(
       res => {
         console.log('getBookCount',res)
@@ -117,7 +120,7 @@ class LibData extends React.Component{
   componentDidMount() {
     setTimeout(() => {
       this.getBookCount();
-    }, 200);
+    }, 350);
 
     setTimeout(() => {
       this.AnalysisBookData()
@@ -149,6 +152,7 @@ class LibData extends React.Component{
   getProgressOption() {
 
     let progress = this.state.progress;
+    console.log('progress',progress)
     let one,two,three,four,five;
     if(progress[0] !== undefined)
       one = progress[0].count;
@@ -397,7 +401,7 @@ getLibOption() {
 getTimeOption() {
   let buyTime = this.state.buyTime;
   let buyYear = [];
-  
+  //拿取年份，统计年份下的书籍。
   buyTime.map( item => {
     buyYear.push(item.substring(0,4))
   })
@@ -413,7 +417,6 @@ getTimeOption() {
           }
       }
   }
-  console.log('buyYear',buyYearSet,'yearCnt',yearCnt);
 
   const option = {
     title: {
@@ -454,6 +457,7 @@ getTimeOption() {
 
   render() {
     let user = this.props.userInfo
+    let progressShow = this.state.progress[0] === undefined ? 1 : this.state.progress[0].count
     return (
       <div className="content-style libData">
         <div className="userWelcom">
@@ -461,11 +465,12 @@ getTimeOption() {
           <p className="welcome">您好，<span className="mainData">「{user.userName || user.userNumber}」</span>。欢迎回顾这些日子来您珍藏的每一本书，每一份记录筑成的这份数据。</p>
         </div>
         <Divider/> 
-        <ReactEcharts
+        { this.state.booksFromLib.length !== 0 &&
+          <ReactEcharts
             className="libCharts"
             option={this.getLibOption()}
             style={{height: '350px', width: '360px', marginLeft:'30px'}}
-            />
+            />}
         <div className="bookCnt">
           <p className="totalText">
             您过去一共收集了<span className="mainData">「{this.state.books.length}」</span>本书。
@@ -492,18 +497,20 @@ getTimeOption() {
           />
         <Divider/> 
         <div className="progress">
-          <ReactEcharts
-            className="progressCharts"
-            option={this.getProgressOption()}
-            style={{height: '400px', width: '500px',marginRight:'150px'}}
-            />
+            <ReactEcharts
+              className="progressCharts"
+              option={this.getProgressOption()}
+              style={{height: '400px', width: '500px',marginRight:'150px'}}
+              />
           {/* <p className="totalText">您过去在收集的图书类别主要集中在<span className="mainData">「小说」</span></p> */}
         </div>
-        
-        <ReactEcharts
-          option={this.getTimeOption()}
-          style={{height: '400px', width: '400px'}}
-          />
+        {
+          progressShow !== 0 &&
+          <ReactEcharts
+            option={this.getTimeOption()}
+            style={{height: '400px', width: '400px'}}
+            />
+        }
       </div>
       
     );

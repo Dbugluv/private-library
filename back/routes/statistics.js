@@ -10,7 +10,7 @@ var router = express.Router();
 
 var StatSQL = {
   getBookCount: 
-  'select count(*) as count from books UNION SELECT COUNT(*) FROM librarys UNION SELECT COUNT(*) FROM books GROUP BY ownedLibId',
+  'select count(*) as count from books where ownerId_b = ? UNION SELECT COUNT(*) FROM librarys where ownerId = ? UNION SELECT COUNT(*) FROM books where ownerId_b = ? GROUP BY ownedLibId',
   getBookType: 'SELECT COUNT(*) as count FROM books GROUP BY bookType ',
   getBookProgress:'SELECT COUNT(*) as count FROM books WHERE progress = 0 AND ownerId_b =? UNION SELECT COUNT(*) FROM books WHERE progress > 0 AND progress < 30 AND ownerId_b =? UNION SELECT COUNT(*) FROM books WHERE progress >= 30 AND progress < 60 AND ownerId_b =? UNION SELECT COUNT(*) FROM books WHERE progress >= 60 AND progress < 100 AND ownerId_b =? UNION SELECT COUNT(*) FROM books WHERE progress =100 AND ownerId_b =?'
 };
@@ -18,8 +18,11 @@ var StatSQL = {
 var str = '';
 
 router.get('/getBookCount', function(req, res){
+  var ownerId_b = req.query.ownerId_b;
+  var ownerId = req.query.ownerId;
+  console.log('ownerId_b',ownerId_b,'ownerId',ownerId)
   pool.getConnection(function (err, connection) {
-    connection.query(StatSQL.getBookCount, function (err,result) {
+    connection.query(StatSQL.getBookCount,[ownerId_b,ownerId,ownerId_b], function (err,result) {
       if(err){
         console.log('失败',err.message);
       }
