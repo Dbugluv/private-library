@@ -51,13 +51,18 @@ class Register extends React.Component{
 
   isExist(values) {
     let exist =  this.state.userList.some( user => {
-      console.log('?????',user.userNumber === parseInt(values.userNumber))
       return user.userNumber === parseInt(values.userNumber)
     })
     
     if(exist) {
       message.error('该用户已存在!')
       this.handleReset();
+    }
+
+    console.log('values.password !== values.confirmPassword',values.password !== values.confirmPassword)
+    if(values.password !== values.confirmPassword){
+      message.error('两次密码输入不一致!')
+      exist = true;
     }
     
     return exist;
@@ -126,6 +131,21 @@ class Register extends React.Component{
               <Input
                 type="password"
                 placeholder="请输入您的密码"
+              />
+            </Form.Item>
+            <Form.Item
+              name="confirmPassword"
+              label="确认"
+              rules={[
+                {
+                  required: true,
+                  message: '请再次输入您的密码以便确认！',
+                },
+              ]}
+            >
+              <Input
+                type="password"
+                placeholder="请再次输入您设置的密码"
               />
             </Form.Item>
             <Form.Item>

@@ -1,16 +1,14 @@
 import React from 'react'
 import { Menu, /* Button,Form, Input, Checkbox, */ Card } from 'element-react';
 import { Form, Input, Button, message, Radio, Popover, Icon} from 'antd';
-import {BarChartOutlined, ReadOutlined, FileAddOutlined, SettingOutlined } from '@ant-design/icons';
+import {BarChartOutlined, ReadOutlined, FileAddOutlined, SettingOutlined, FormOutlined } from '@ant-design/icons';
 
 // import { Input, Button, Checkbox } from 'antd';
 import Bookshow from '../component/Bookshow'
+import Excerpt from '../component/Excerpt'
 import AddBookItem from '../component/AddBookItem'
 import UserInfo from '../component/UserInfo'
 import noContentImg from '../img/no-content.jpg'
-import book2 from '../img/book1.jpg'
-import book3 from '../img/book3.jpeg'
-import book4 from '../img/book4.jpg'
 import './Homepage.scss'
 import 'element-theme-default';
 import axios from 'axios';
@@ -26,14 +24,15 @@ class Homepage extends React.Component{
       noLibHint: true,
       addLibraryOn: false,
       addBookOn: false,
-      showBookOn: false,
+      showBookOn: true,
       showUserInfo: false,
       visible: false,
+      excerptShow: false,
       owenedLibOptions: ['位置','图书类别','其他'],
       checkedOwnedLibList: [],
       loginUser: '',
       payImgUrl: '',
-      libDataShow: true,
+      libDataShow: false,
       libs: [],
     }
     this.userId = this.props.match.params.userId
@@ -109,6 +108,8 @@ class Homepage extends React.Component{
       this.showBook();
     } else if (index === '5') {
       this.jumpToLibData();
+    } else if (index === '6') {
+      this.showExcept();
     }
   }
 
@@ -161,7 +162,8 @@ class Homepage extends React.Component{
       addBookOn: false,
       showBookOn: false,
       showUserInfo: false,
-      libDataShow: false
+      libDataShow: false,
+      excerptShow: false
     })
     // console.log('...' + this.state.noLibHint)
   } 
@@ -172,7 +174,8 @@ class Homepage extends React.Component{
       addBookOn: true,
       showBookOn: false,
       showUserInfo: false,
-      libDataShow: false
+      libDataShow: false,
+      excerptShow: false
     })
   }
 
@@ -184,7 +187,20 @@ class Homepage extends React.Component{
       addBookOn: false,
       showBookOn: true,
       showUserInfo: false,
-      libDataShow: false
+      libDataShow: false,
+      excerptShow: false
+    })
+  }
+
+  showExcept() {
+    this.setState({
+      noLibHint:false,
+      addLibraryOn: false,
+      addBookOn: false,
+      showBookOn: false,
+      showUserInfo: false,
+      libDataShow: false,
+      excerptShow: true
     })
   }
   
@@ -268,6 +284,7 @@ class Homepage extends React.Component{
             <Menu.Item index="3"><FileAddOutlined className="menu-style"/>添加图书</Menu.Item>
             <Menu.Item index="4"><SettingOutlined className="menu-style"/>设置</Menu.Item>
             <Menu.Item index="5"><BarChartOutlined className="menu-style"/>我的图书数据</Menu.Item>
+            <Menu.Item index="6"><FormOutlined className="menu-style"/>我的摘录</Menu.Item>
           </Menu>
           {/* </Layout.Col> */}
         </div>
@@ -338,6 +355,12 @@ class Homepage extends React.Component{
             </div>
           ) : ''
         }
+
+        {
+          this.state.excerptShow ? 
+          (<Excerpt userId={this.userId}/>) : ''
+        }
+
         {
           this.state.noLibHint ?
           <div className="content-style no-content-hint">
@@ -347,11 +370,12 @@ class Homepage extends React.Component{
         </div>
           : ''
         }
-          {
+        {
           this.state.showBookOn && !this.state.noLibHint? 
           ( <Bookshow userId={this.userId} selectLibId={this.state.selectedLib.libId}/> ) : 
             ''
-          }
+        }
+        
         </div>
       </div>
     )

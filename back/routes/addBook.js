@@ -20,7 +20,8 @@ var BookSQL = {
   updateExcerpt: 'UPDATE books SET excerpt = ? WHERE bookId=?',
   editBook: 'UPDATE books SET bookName = ? , author = ? ,location = ?, brief = ?, progress =? WHERE bookId=?',
   selectByCategory: 'SELECT * FROM books WHERE bookType = ? AND ownedLibId = ?',
-  selectByLibs: 'SELECT * FROM books WHERE ownedLibId = ?'
+  selectByLibs: 'SELECT * FROM books WHERE ownedLibId = ?',
+  selectExcerpt: 'select * from books where excerpt !="" and ownerId_b = ?'
 };
 
 var str = '';
@@ -40,6 +41,26 @@ router.get('/queryALl', function(req, res){
       res.send(str);
   　　   connection.release();
   　　 },200)
+  });
+});
+
+// 获取有摘录的书籍
+router.get('/queryExcerpt', function(req, res){
+  var ownerId_b = req.query.ownerId_b;
+  console.log('queryExcerpt:params',ownerId_b)
+  pool.getConnection(function (err, connection) {
+    connection.query(BookSQL.selectExcerpt, ownerId_b, function (err,result) {
+      if(err){
+        console.log('失败',err.message);
+      } else{
+        setTimeout(function(){
+          res.send(str);
+    　　   connection.release();
+    　　 },200)
+      }
+      str = JSON.stringify(result);
+      console.log(str);  //数据库查询结果返回到result中
+    });
   });
 });
 

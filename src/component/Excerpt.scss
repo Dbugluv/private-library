@@ -1,0 +1,20 @@
+.Excerpt {
+  overflow: scroll;
+}
+
+.single_excerpt {
+  font-size: 15px;
+  border: 1px solid rgba(3, 77, 64, 0.2);
+  box-shadow: 3px 3px 4px 0 rgba(40, 59, 52, 0.2), 0 0 6px 0 rgba(88, 5, 5, 0.14);;
+  padding: 15px;
+  margin-bottom: 8px;  
+  font-family: tahoma, arial, 'Hiragino Sans GB', '\5b8b\4f53', sans-serif;
+  // max-height: 880px;
+
+  .bookName {
+    font-style: italic;
+    text-align: end;
+    font-weight: bold;
+    margin-bottom: 0px;
+  }
+}
