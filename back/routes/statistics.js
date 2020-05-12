@@ -12,7 +12,7 @@ var StatSQL = {
   getBookCount: 
   'select count(*) as count from books UNION SELECT COUNT(*) FROM librarys UNION SELECT COUNT(*) FROM books GROUP BY ownedLibId',
   getBookType: 'SELECT COUNT(*) as count FROM books GROUP BY bookType ',
-  getBookProgress:'SELECT COUNT(*) as count FROM books WHERE progress = 0 UNION SELECT COUNT(*) FROM books WHERE progress > 0 AND progress < 30 UNION SELECT COUNT(*) FROM books WHERE progress >= 30 AND progress < 60 UNION SELECT COUNT(*) FROM books WHERE progress >= 60 AND progress < 100 UNION SELECT COUNT(*) FROM books WHERE progress =100'
+  getBookProgress:'SELECT COUNT(*) as count FROM books WHERE progress = 0 AND ownerId_b =? UNION SELECT COUNT(*) FROM books WHERE progress > 0 AND progress < 30 AND ownerId_b =? UNION SELECT COUNT(*) FROM books WHERE progress >= 30 AND progress < 60 AND ownerId_b =? UNION SELECT COUNT(*) FROM books WHERE progress >= 60 AND progress < 100 AND ownerId_b =? UNION SELECT COUNT(*) FROM books WHERE progress =100 AND ownerId_b =?'
 };
 
 var str = '';
@@ -34,8 +34,9 @@ router.get('/getBookCount', function(req, res){
 });
 
 router.get('/getBookProgress', function(req, res){
+  var ownerId_b = req.query.userId
   pool.getConnection(function (err, connection) {
-    connection.query(StatSQL.getBookProgress, function (err,result) {
+    connection.query(StatSQL.getBookProgress,[ownerId_b,ownerId_b,ownerId_b,ownerId_b,ownerId_b], function (err,result) {
       if(err){
         console.log('getBookProgress失败',err.message);
       }

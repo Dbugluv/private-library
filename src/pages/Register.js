@@ -68,7 +68,7 @@ class Register extends React.Component{
     let history = this.props.history;
     let exist = this.isExist(values);
     !exist && this.addUser(values)
-    !exist && history.push('/homepage');
+    !exist && history.push('/');
   }
 
   render() {

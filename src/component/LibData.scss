@@ -6,11 +6,31 @@
   min-height: 700px;
   overflow: scroll;
   padding: 0;
+  // background:url(../img/bg1.png) no-repeat bottom center;
+
+  .userWelcom {
+
+    font-family: tahoma, arial, 'Hiragino Sans GB', '\5b8b\4f53', sans-serif;
+    padding-left: 40px;
+    text-shadow: 2px 2px rgba(138, 189, 219, 0.5);
+    font-size: 16px;
+    color: rgb(17, 61, 35);
+
+    .saying {
+      color: rgb(179, 55, 6);
+      font-style: italic;
+    }
+
+    .welcome {
+
+    }
+  }
   
   .totalText {
+    font-family: tahoma, arial, 'Hiragino Sans GB', '\5b8b\4f53', sans-serif;
     margin: 100px 10px 10px 40px;
     height: 30%;
-    text-shadow: 2px 3px rgb(192, 214, 221);
+    text-shadow: 2px 2px rgb(192, 214, 221);
     // border: 1px solid burlywood;
     font-size: 16px;
     color: rgb(17, 61, 35);
@@ -25,6 +45,7 @@
   .bookCnt {
     display: flex;
     flex-wrap: nowrap;
+    margin-left: 220px;
 
     .totalText {
       margin-right: 200px;
@@ -35,8 +56,8 @@
   }
 
   .bookType {
-    display: flex;
-    flex-wrap: nowrap;
+    // display: flex;
+    // flex-wrap: wrap;
    
     .typeCharts {
       margin: -10px 10px 20px 0px;

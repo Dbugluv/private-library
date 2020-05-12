@@ -8,7 +8,7 @@ import {
   Row,
   Upload, message, DatePicker, Slider, InputNumber
 } from 'antd';
-import { LoadingOutlined, CloudUploadOutlined} from '@ant-design/icons';
+import { LoadingOutlined, CloudUploadOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import axios from 'axios'
 import CryptoJS from 'crypto-js';
@@ -42,14 +42,14 @@ class AddBookItem extends React.Component {
       bookTypeOptions:['小说', '诗歌', '散文', '哲理', '历史', '其他'],
       checkedBookTypeList: [],
       owenedLibOptions: [],
-      checkedOwnedLibList: [],
+      checkedOwnedLibList: '',
       isLoan: 0,
       payImgLoading: false,
       payImgUrl: '',
       inputValue: 0,
       noLibHint: false
     }
-    // this.selectTime = '';
+    this.userId = this.props.userId;
   }
   formRef = React.createRef();
 
@@ -65,22 +65,25 @@ class AddBookItem extends React.Component {
     // })
   }
   onFinish = values => {
+    
     console.log('form: ', values);
     this.addBooks(values);
     // let history = this.props.history;
   }
 
-  addBooks = values => {
-    var baseUrl = 'http://localhost:9000/books/add';
+  addBooks = (values) => {
+
     let ownenLib = this.state.librarys.filter( item => {    // 拿取选中图书集的id。
-        return (item.libName === values.ownedLib);
+      return (item.libName === values.ownedLib);
     })
+    let ownedLibId = ownenLib[0].libId;
+    console.log('ownenLib',ownedLibId)
+    var baseUrl = 'http://localhost:9000/books/add';
+    
     var bookInfo = Object.assign({},values)
-    // let isLoan = this.state.isLoan;
-    bookInfo.ownedLibId = 1;
     axios.get(`${baseUrl}?bookName=${bookInfo.bookName}&author=${bookInfo.author}&location=${
-      bookInfo.location}&bookCover=${upLoadedBook}&ownedLibId=${ownenLib.libId}&brief=${bookInfo.brief}&buyTime=${
-      this.state.selectTime}&bookType=${bookInfo.bookType}&progress=${this.state.inputValue}`)
+      bookInfo.location}&bookCover=${upLoadedBook}&ownedLibId=${ownedLibId}&brief=${bookInfo.brief}&buyTime=${
+      this.state.selectTime}&bookType=${bookInfo.bookType}&progress=${this.state.inputValue}&ownerId_b=${this.userId}`)
       .then(res => {
         console.log(res)
         if(res.status === 200 && res.data === 'success'){
@@ -91,26 +94,47 @@ class AddBookItem extends React.Component {
       })
   }
 
+  // getLibs() {
+  //   axios.get('http://localhost:3000/api/librarys')
+  //   .then(
+  //     (res) => {
+  //       // console.log('res:',res.data)
+  //       let options = [], optionKeys = [];
+  //       res.data.map( index => {
+  //         options[index.libId] = index.libName
+  //       })
+  //       if(res.data){
+  //         this.setState({
+  //           librarys: Object.assign( [], this.state.librarys, res.data),
+  //           owenedLibOptions: Object.assign( [], this.state.owenedLibOptions, options),
+  //           checkedOwnedLibList: res.data[0].libName  // 初始化选择默认值
+  //         })
+  //       } else {
+  //         this.setState({
+  //           noLibHint: true
+  //         })
+  //       }        
+  //   })
+  // }
   getLibs() {
-    axios.get('http://localhost:3000/api/librarys')
+    var baseUrl = 'http://localhost:9000/library/ownerLib'
+    axios.get(`${baseUrl}?ownerId=${this.userId}`)
     .then(
       (res) => {
-        // console.log('res:',res.data)
-        let options = [], optionKeys = [];
+        console.log('res:',res.data)
+        let options = [];
         res.data.map( index => {
           options[index.libId] = index.libName
         })
+        // console.log('options:',options)
         if(res.data){
           this.setState({
             librarys: Object.assign( [], this.state.librarys, res.data),
             owenedLibOptions: Object.assign( [], this.state.owenedLibOptions, options),
             checkedOwnedLibList: res.data[0].libName  // 初始化选择默认值
           })
-        } else {
-          this.setState({
-            noLibHint: true
-          })
-        }        
+        }      
+        // console.log('getLibs',this.state.owenedLibOptions,this.state.checkedOwnedLibList)
     })
   }
 
@@ -149,7 +173,6 @@ class AddBookItem extends React.Component {
   }
 
   uploadChange = ({ file }) => {
-    let history = this.props.history
     if (file.status === 'uploading') {
       this.setState({ payImgLoading: true });
       return;
@@ -162,7 +185,6 @@ class AddBookItem extends React.Component {
         payImgUrl: `${host}/${file.name}`,
         payImgLoading: false,
       });
-      history.push('/hompage');
     }
   }
   
@@ -188,8 +210,8 @@ class AddBookItem extends React.Component {
       </div>
     );
     const { inputValue } = this.state;
-    console.log('this.state',this.state.owenedLibOptions)
-    
+    let checkedOwnedLibList = this.state.checkedOwnedLibList;
+    console.log('this.state',this.state.owenedLibOptions,checkedOwnedLibList)
     return (
     <div>
       {
@@ -217,39 +239,45 @@ class AddBookItem extends React.Component {
           ]}>
           <Input placeholder="请输入书籍名称" autoComplete="off" />
         </Form.Item>
-        <Form.Item label="作者" name="author">
+        <Form.Item label="作者" name="author"
+          rules={[
+            {
+              required: true,
+              message: '请输入作者名字！',
+            },
+          ]}>
           <Input autoComplete="off" />
         </Form.Item>
-        <Form.Item label="文学体裁" name="bookType">
+        <Form.Item label="文学体裁" name="bookType"
+          rules={[
+            {
+              required: true,
+              message: '请选取文学体裁！',
+            },
+          ]}>
           <Radio.Group
               options={this.state.bookTypeOptions}
               value={this.state.checkedBookTypeList}
               // onChange={this.handleCheckChange.bind(this)}
             /> 
         </Form.Item>
-        <Form.Item label="所属图书集" name="ownedLib">
+        <Form.Item label="所属图书集" name="ownedLib"
+          rules={[
+            {
+              required: true,
+              message: '请选取所属图书集！',
+            },
+          ]}>
           <Radio.Group
             options={this.state.owenedLibOptions}
-            value={this.state.checkedOwnedLibList}
+            value={checkedOwnedLibList}
             onChange={this.handleCheckChange.bind(this)}
+            // key={this.state.checkedOwnedLibList.toString()}
           />
         </Form.Item>
-        {/* <Form.Item label="是否已被借阅">
-          <Radio.Group onChange={this.loadChange.bind(this)} value={isLoan} defaultValue={1}>
-            <Radio value={1} >是</Radio>
-            <Radio value={0}>否</Radio>
-          </Radio.Group>
-        </Form.Item> */}
-        { 
-          // this.state.isLoan ? 
-          //   <Form.Item label="借阅人" name="loaner">
-          //     <Input placeholder="请输入借阅人名称" />
-          //   </Form.Item>
-          // : 
           <Form.Item label="存放位置" name="location">
             <Input placeholder="请输入书籍放置位置（参考：某市家中书柜第二层）" />
           </Form.Item>
-        }
         <Form.Item label="阅读进度" name="progress">
           <Row>
             <Col span={12}>
@@ -266,25 +294,25 @@ class AddBookItem extends React.Component {
         </Form.Item>
         <Form.Item label="图书封面" name="bookCover">
           <Upload
-           action={host}
-           accept="image/*"
-           listType="picture-card"
-           className="avatar-uploader"
-           showUploadList={false}
-           beforeUpload={this.beforeUpload.bind(this)}
-           onChange={this.uploadChange.bind(this)}
-           data={{
-             key: "${filename}",
-             policy: policyBase64,
-             OSSAccessKeyId: accessKeyId,
-             success_action_status: 200,
-             signature,
-           }}
+            action={host}
+            accept="image/*"
+            listType="picture-card"
+            className="avatar-uploader"
+            showUploadList={false}
+            beforeUpload={this.beforeUpload.bind(this)}
+            onChange={this.uploadChange.bind(this)}
+            data={{
+              key: "${filename}",
+              policy: policyBase64,
+              OSSAccessKeyId: accessKeyId,
+              success_action_status: 200,
+              signature,
+            }}
         >
            {
-               this.state.payImgUrl ? 
-               <img src={ this.state.payImgUrl} alt="avatar" style={{ width: '100%' }} /> :
-               uploadButton   
+              this.state.payImgUrl ? 
+              <img src={ this.state.payImgUrl} alt="avatar" style={{ width: '100%' }} /> :
+              uploadButton   
            }
         </Upload> 
         </Form.Item>

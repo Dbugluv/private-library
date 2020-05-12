@@ -159,8 +159,8 @@ class UserInfo extends React.Component{
             </Upload>
           </Form.Item>
 
-          <Form.Item label="昵称" name="userName">
-            <Input className="input" defaultValue="Dluv" maxLength="10" onChange={this.submitName.bind(this)}/>
+          <Form.Item label="昵称" name="userName" >
+            <Input className="input" defaultValue={this.state.userName} maxLength="10" onChange={this.submitName.bind(this)}/>
           </Form.Item>
           </Form>
         

@@ -7,11 +7,13 @@ var router = express.Router();
 
 
 var LibrarySQL = {
-  insert: 'INSERT INTO librarys(libName,libClass,libLocation) VALUES(?,?,?)', // 插入数据
+  insert: 'INSERT INTO librarys(libName,libClass,libLocation,ownerId) VALUES(?,?,?,?)', // 插入数据
   drop: 'DROP TABLE librarys', // 删除表中所有的数据
   del: 'delete from librarys where libId =',
   queryAll: 'SELECT * FROM librarys', // 查找表中所有数据
-  getBookById: 'SELECT * FROM librarys WHERE libId =', // 查找符合条件的数据
+  getLibById: 'SELECT * FROM librarys WHERE libId =', // 查找符合条件的数据
+  updateLib: 'UPDATE librarys SET libName = ? WHERE libId=?',
+  queryByownerId: 'SELECT * FROM librarys WHERE ownerId = ?'
 };
 
 var str = '';
@@ -33,11 +35,29 @@ router.get('/queryALl', function(req, res){
   });
 });
 
+//返回用户下的图书集
+router.get('/ownerLib', function(req, res){
+  var ownerId = req.query.ownerId
+  pool.getConnection(function (err, connection) {
+    connection.query(LibrarySQL.queryByownerId, [ownerId], function (err,result) {
+      if(err){
+        console.log('返回用户下的图书集失败',err.message);
+      }
+      str = JSON.stringify(result);
+    });
+    
+    setTimeout(function(){
+      res.send(str);
+  　　   connection.release();
+  　　 },200)
+  });
+});
+
 //获取单独信息
 router.get('/getOne/:id', function(req,res) {
   var id = req.params.id
   pool.getConnection(function (err, connection) {
-    connection.query(LibrarySQL.getBookById + id, function (err,result) {
+    connection.query(LibrarySQL.getLibById + id, function (err,result) {
       if(err){
         console.log('获取单独信息失败',err.message);
       }
@@ -58,8 +78,9 @@ router.get('/add', function(req, res){
   var libName = params.libName;
   var libClass = params.libClass;
   var libLocation = params.libLocation;
+  var ownerId = params.ownerId
   console.log('book-params: ',params)
-  var sqlArr = [libName, libClass, libLocation];
+  var sqlArr = [libName, libClass, libLocation, ownerId];
   pool.getConnection(function (err, connection) {
     connection.query(LibrarySQL.insert, sqlArr, function (err,result) {
       if(err){
@@ -75,34 +96,15 @@ router.get('/add', function(req, res){
   res.status(200).send('success');
 });
 
-//删除某本书信息
-router.get('/del/:id', function(req, res){
-  //数据库连接、数据操作
-  console.log('id',req.params.id)
-  pool.getConnection(function (err, connection) {
-    connection.query(`${LibrarySQL.del}${req.params.id}`, function (err,result) {
-      if(err){
-        console.log('删除失败',err.message);
-      }
-      str = JSON.stringify(result);
-      console.log(str);  //数据库查询结果返回到result中
-    });
-    setTimeout(function(){
-　　   connection.release();
-　　 },200)
-  });
-  res.status(200).send('success');
-});
 
-//更新用户信息
-router.get("/update/:id",function(req,res,next){
-  console.log('req.body: ',req.body,req.params.id)
-  var id = req.params.id;
-  var sql = "update librarys set libName = " + "测试图书集" + " where libId = " + id;
+//更新信息
+router.get("/update",function(req,res,next){
+  var libId = req.query.libId;
+  var libName = req.query.libName;
   pool.getConnection(function (err, connection) { 
-    connection.query(sql,function(err,result){
+    connection.query(LibrarySQL.updateLib,[libName,libId], function(err,result){
       if(err){
-          res.send("更新用户信息失败 " + err);
+          res.send("更新信息失败 " + err);
       }else {
         str = JSON.stringify(result);
       }
@@ -112,22 +114,6 @@ router.get("/update/:id",function(req,res,next){
     });
     res.status(200).send('success');
   })
- 
-});
-
-router.post('/update', function (req, res) {
-  console.log('req.body: ',req.body)
-  var id = req.body.id;
-  var name = req.body.name;
-  pool.getConnection(function (err, connection) { 
-    connection.query("update librarys set bookName='" + name + "' where bookId=" + id, function (err, rows) {
-      if (err) {
-        res.end('修改失败：' + err);
-      } else {
-        res.redirect('/users');
-      }
-    });
-  });
 });
 
 module.exports = router;

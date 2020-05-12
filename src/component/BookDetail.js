@@ -1,12 +1,28 @@
 import React from 'react';
 // import { Icon } from 'element-react';
 import { Divider, Input, message, List, Button, 
-  Tooltip, Modal, Slider, InputNumber, Row, Col, Form, Radio
+  Tooltip, Modal, Slider, InputNumber, Row, Col, Form, Radio, Upload
 } from 'antd';
-import { EditOutlined, FormOutlined, DeleteOutlined, EnterOutlined, WalletOutlined} from '@ant-design/icons';
+import { EditOutlined, FormOutlined, DeleteOutlined, EnterOutlined, WalletOutlined, LoadingOutlined, CloudUploadOutlined } from '@ant-design/icons';
 import axios from 'axios'
 import './BookDetail.scss'
+import CryptoJS from 'crypto-js';
+import Base64 from 'base-64';
+import defaultBookCover from '../img/default.jpg'
 const { TextArea } = Input;
+const host = "//plms.oss-cn-shanghai.aliyuncs.com";
+const accessKeyId = "LTAI4G4LC1nMTHnhn6JtD2yY";
+const accessSecret = "ZwLBCKohwNOxlqnQZe3kwL78RiwmD1";
+const policyText = {
+  "expiration": "2028-01-01T12:00:00.000Z", // 设置该Policy的失效时间，
+  "conditions": [
+    ["content-length-range", 0, 1048576000] // 设置上传文件的大小限制
+  ]
+};
+const policyBase64 = Base64.encode(JSON.stringify(policyText))
+const bytes = CryptoJS.HmacSHA1(policyBase64, accessSecret, { asBytes: true });
+const signature = bytes.toString(CryptoJS.enc.Base64); 
+let upLoadedBook = '';
 
 class BookDetail extends React.Component {
   constructor(props) {
@@ -35,6 +51,33 @@ class BookDetail extends React.Component {
 
   componentDidMount() {
   }
+  beforeUpload(file) {
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+    if (!isJpgOrPng) {
+      message.error('You can only upload JPG/PNG file!');
+    }
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+      message.error('Image must smaller than 2MB!');
+    }
+    return isJpgOrPng && isLt2M;
+  }
+
+  uploadChange = ({ file }) => {
+    if (file.status === 'uploading') {
+      this.setState({ payImgLoading: true });
+      return;
+    }
+    if (file.status === 'done') {
+      let imgUrl = `https:${host}/${file.name}`
+      upLoadedBook = imgUrl;
+      console.log('imgurl',imgUrl)
+      this.setState({
+        payImgUrl: `${host}/${file.name}`,
+        payImgLoading: false,
+      });
+    }
+  }
 
   delBook(id) {
     // console.log('thisbokkid',id)
@@ -43,7 +86,9 @@ class BookDetail extends React.Component {
       .then( res => {
         if(res.status === 200 && res.data === 'success'){
           message.success('删除图书成功！');
-          // console.log('thisprops',this.props);
+          this.setState({
+            modalVisible: false
+          })
           this.props.bookChanged();
         } else {
           message.error('删除图书失败')
@@ -170,6 +215,14 @@ class BookDetail extends React.Component {
   render() {
     let bookInfo = this.props.bookInfo;
     const { inputValue } = this.state;
+    const uploadButton = (
+      <div>
+        { this.state.payImgLoading ?
+          <LoadingOutlined /> : <CloudUploadOutlined />
+        }
+        <div className="ant-upload-text">Upload</div>
+      </div>
+    );
     return (
     <div style={{display: 'inline'}}>
        <Modal
@@ -190,7 +243,7 @@ class BookDetail extends React.Component {
       </Modal>
       <div className="single-book-detail">
         <div className="imagecover">
-          <img src={bookInfo.bookCover} />
+          <img src={bookInfo.bookCover || defaultBookCover} />
         </div>
         <div className="single-book-info">
           {
@@ -214,6 +267,30 @@ class BookDetail extends React.Component {
               initialValues={bookInfo}
               onFinish={this.onFinish.bind(this)}
             >
+              {/* <Form.Item label="图书封面" name="bookCover">
+                <Upload
+                  action={host}
+                  accept="image/*"
+                  listType="picture-card"
+                  className="avatar-uploader"
+                  showUploadList={false}
+                  beforeUpload={this.beforeUpload.bind(this)}
+                  onChange={this.uploadChange.bind(this)}
+                  data={{
+                    key: "${filename}",
+                    policy: policyBase64,
+                    OSSAccessKeyId: accessKeyId,
+                    success_action_status: 200,
+                    signature,
+                  }}
+              >
+                {
+                    this.state.payImgUrl ? 
+                    <img src={ this.state.payImgUrl} alt="avatar" style={{ width: '100%' }} /> :
+                    uploadButton   
+                }
+              </Upload> 
+              </Form.Item> */}
               <Form.Item className="editItem" label="书籍名称" name="bookName"
                 rules={[
                   {

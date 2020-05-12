@@ -7,7 +7,7 @@ import {BarChartOutlined, ReadOutlined, FileAddOutlined, SettingOutlined } from 
 import Bookshow from '../component/Bookshow'
 import AddBookItem from '../component/AddBookItem'
 import UserInfo from '../component/UserInfo'
-import bookImg from '../img/book.jpg'
+import noContentImg from '../img/no-content.jpg'
 import book2 from '../img/book1.jpg'
 import book3 from '../img/book3.jpeg'
 import book4 from '../img/book4.jpg'
@@ -15,22 +15,26 @@ import './Homepage.scss'
 import 'element-theme-default';
 import axios from 'axios';
 import LibData from '../component/LibData';
+import { tuple } from 'antd/lib/_util/type';
+const defaultAvatar = 'https://plms.oss-cn-shanghai.aliyuncs.com/defaultAva.jpg'
+
 
 class Homepage extends React.Component{
   constructor(props) {
     super(props);
     this.state = {
-      noContentHint: false,
+      noLibHint: true,
       addLibraryOn: false,
       addBookOn: false,
-      showBookOn: true,
+      showBookOn: false,
       showUserInfo: false,
       visible: false,
       owenedLibOptions: ['位置','图书类别','其他'],
       checkedOwnedLibList: [],
       loginUser: '',
       payImgUrl: '',
-      libDataShow: false
+      libDataShow: true,
+      libs: [],
     }
     this.userId = this.props.match.params.userId
   }
@@ -39,10 +43,17 @@ class Homepage extends React.Component{
 
   componentDidMount() {
     this.getUserInfo();
+    this.getLibs();
   }
   
+  componentWillReceiveProps(nextProps) {
+    this.state.libs && this.setState({
+      noLibHint: false
+    })
+  }
   getUserInfo() {
     var baseUrl = 'http://localhost:9000/userInfo/getOne';
+    console.log('usserid',this.userId)
     axios.get(`${baseUrl}?userId=${this.userId}`)
       .then(res => {
         // console.log('getUserInfo:',res)
@@ -51,23 +62,50 @@ class Homepage extends React.Component{
             loginUser: res.data[0],
             payImgUrl: res.data[0].avator
           })
-          // console.log('用户信息查询成功')
+          console.log('用户信息查询成功',res.data[0])
         } else {
           console.log('查询失败！')
         }
       })
   }
+
+  getLibs() {
+    let userId = this.userId;
+    let libs = [];
+    axios.get('http://localhost:9000/library/queryALl')
+     .then(
+       (res) => {
+        res.data.map( item => {
+          if( item.ownerId === parseInt(userId)) {
+            libs.push(item);
+          }
+        })
+       
+        this.setState({
+          libs: libs,
+          selectedLib: libs[0]  // 初始化选择默认值
+        })
+
+        if(libs.length !== 0){
+          this.setState({
+            noLibHint: false
+          })
+        }
+    })
+  }
   // 图书集菜单触发
 
   onSelect(index,indexPath) {
-    // console.log(index,indexPath)
+    console.log(index,indexPath)
     if (index === '4') {
       this.showUserInfo();
     }else if (index === '2-2'){
       this.showAddLibrary();
     } else if(index === '3') {
+      console.log('onselect',this.state.noLibHint)
       this.addBook();
     } else if (index === '2-1') {
+      console.log('onselect',this.state.noLibHint)
       this.showBook();
     } else if (index === '5') {
       this.jumpToLibData();
@@ -107,7 +145,7 @@ class Homepage extends React.Component{
     // var libClass = library.libClass;
     // var location = library.location;
     var baseUrl = 'http://localhost:9000/library/add';
-    axios.get(`${baseUrl}?libName=${library.libName}&libClass=${library.libClass}&libLocation=${library.location}`)
+    axios.get(`${baseUrl}?libName=${library.libName}&libClass=${library.libClass}&libLocation=${library.location}&ownerId=${this.userId}`)
       .then(res => {
         if(res.status === 200 && res.data === 'success'){
           message.success('添加成功！');
@@ -119,19 +157,17 @@ class Homepage extends React.Component{
 
   showAddLibrary = values => {
     this.setState({
-      noContentHint:false,
       addLibraryOn: true,
       addBookOn: false,
       showBookOn: false,
       showUserInfo: false,
       libDataShow: false
     })
-    // console.log('...' + this.state.noContentHint)
+    // console.log('...' + this.state.noLibHint)
   } 
 
   addBook() {
     this.setState({
-      noContentHint:false,
       addLibraryOn: false,
       addBookOn: true,
       showBookOn: false,
@@ -141,8 +177,9 @@ class Homepage extends React.Component{
   }
 
   showBook() {
+    !this.state.noLibHint &&
     this.setState({
-      noContentHint:false,
+      noLibHint:false,
       addLibraryOn: false,
       addBookOn: false,
       showBookOn: true,
@@ -184,7 +221,7 @@ class Homepage extends React.Component{
 
   jumpToLibData() {
     this.setState({
-      noContentHint:false,
+      noLibHint:false,
       addLibraryOn: false,
       addBookOn: false,
       showBookOn: false,
@@ -194,7 +231,7 @@ class Homepage extends React.Component{
   }
 
   render() {
-    const defaultAvatar = 'https://plms.oss-cn-shanghai.aliyuncs.com/defaultAva.jpg'
+    // console.log('this.state.noLibHint',this.state.noLibHint,'libs',this.state.libs,'selecelib',this.state.selectedLib)
 
     return (
       <div className="homepage-main">
@@ -294,17 +331,27 @@ class Homepage extends React.Component{
           ) : ''
         }
         {
-          this.state.addBookOn ? (
+          this.state.addBookOn && !this.state.noLibHint ? (
             <div className="content-style addBook">
                <h1>添加图书</h1>
-              <AddBookItem />
+              <AddBookItem noLibHint={this.state.noLibHint} userId={this.userId}/>
             </div>
           ) : ''
         }
         {
-          this.state.showBookOn ?
-          ( <Bookshow userId={this.userId} /> ) : ''
+          this.state.noLibHint ?
+          <div className="content-style no-content-hint">
+            <img src={noContentImg} />
+            <span>您还没有创建图书集哦!</span><br />
+            <span>快去建立属于您的图书集吧!</span>
+        </div>
+          : ''
         }
+          {
+          this.state.showBookOn && !this.state.noLibHint? 
+          ( <Bookshow userId={this.userId} selectLibId={this.state.selectedLib.libId}/> ) : 
+            ''
+          }
         </div>
       </div>
     )

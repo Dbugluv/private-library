@@ -9,15 +9,16 @@ var router = express.Router();
 
 
 var BookSQL = {
-  insert: 'INSERT INTO books(bookName, author, location, bookCover, ownedLibId, brief, buyTime, bookType, progress) VALUES(?,?,?,?,?,?,?,?,?)', // 插入数据
+  insert: 'INSERT INTO books(bookName, author, location, bookCover, ownedLibId, brief, buyTime, bookType, progress, ownerId_b) VALUES(?,?,?,?,?,?,?,?,?,?)', // 插入数据
   drop: 'DROP TABLE books', // 删除表中所有的数据
   del: 'DELETE FROM books WHERE bookId = ?',
   queryAll: 'SELECT * FROM books', // 查找表中所有数据
+  queryByUserId: 'SELECT * FROM books WHERE ownerId_b = ?', // 查找表中所有数据
   getBookById: 'SELECT * FROM books WHERE bookId = ?', // 查找符合条件的数据
-  getBookByName: 'SELECT * FROM books WHERE bookName = ?',
+  getBookByName: 'SELECT * FROM books WHERE bookName like ?',
   updateBrief: 'UPDATE books SET brief = ? WHERE bookId=?',
   updateExcerpt: 'UPDATE books SET excerpt = ? WHERE bookId=?',
-  editBook: 'UPDATE books SET bookName = ? , author = ? ,location = ?, brief = ?, progress =?, isLoan = ?, loaner = ? WHERE bookId=?',
+  editBook: 'UPDATE books SET bookName = ? , author = ? ,location = ?, brief = ?, progress =? WHERE bookId=?',
   selectByCategory: 'SELECT * FROM books WHERE bookType = ? AND ownedLibId = ?',
   selectByLibs: 'SELECT * FROM books WHERE ownedLibId = ?'
 };
@@ -83,8 +84,28 @@ router.get('/selectByLibs', function(req, res){
   });
 });
 
+router.get('/queryByUserId', function(req, res){
+  var ownerId_b = req.query.ownerId_b;
+  console.log('params:',ownerId_b)
+  pool.getConnection(function (err, connection) {
+    connection.query(BookSQL.queryByUserId,[ownerId_b], function (err,result) {
+      if(err){
+        console.log('失败',err.message);
+      } else {
+        setTimeout(function(){
+          res.send(str);
+    　　   connection.release();
+    　　 },200)
+      }
+      str = JSON.stringify(result);
+      console.log(str);  //数据库查询结果返回到result中
+    });
+  });
+});
+
+//搜索书籍
 router.get('/getByName', function(req, res){
-  var bookName = req.query.bookName;
+  var bookName = '%'+req.query.bookName + '%';
   console.log('getByName-> ',bookName)
   pool.getConnection(function (err, connection) {
     connection.query(BookSQL.getBookByName,[bookName], function (err,result) {
@@ -134,11 +155,11 @@ router.get('/add', function(req, res){
   var brief = params.brief || null;
   var buyTime = params.buyTime || null;
   var progress = params.progress || null;
-  // var loaner = params.loaner;
+  var ownerId_b = params.userId;
 
   var sqlSuccess;
   console.log('book-params: ',params)
-  var sqlArr = [bookName, author, location, bookCover, ownedLibId, brief, buyTime, bookType, progress];
+  var sqlArr = [bookName, author, location, bookCover, ownedLibId, brief, buyTime, bookType, progress, ownerId_b];
   pool.getConnection(function (err, connection) {
     connection.query(BookSQL.insert, sqlArr, function (err,result) {
       if(err){
@@ -150,11 +171,13 @@ router.get('/add', function(req, res){
       sqlSuccess = result.affectedRows;
       // res.send('ssqlsuccess' + sqlSuccess);
     });
-    setTimeout(function(){
-　　   connection.release();
-　　 },200)
+    if(!err){
+      setTimeout(function(){
+        res.status(200).send('success');
+  　　   connection.release();
+  　　 },200)
+    }
   });
-  res.status(200).send('success');
 });
 
 //删除某本书信息
@@ -225,15 +248,15 @@ router.get("/updateBook",function(req,res,next){
   var author = params.author || null;
   var location = params.location || null;
   // var bookType = params.bookType || null;
-  var isLoan = params.isLoan;
+  // var isLoan = params.isLoan;
   // var bookCover = params.bookCover || null;
   // var ownedLibId = params.ownedLibId;
   var brief = params.brief || null;
   // var buyTime = params.buyTime || null;
   var progress = params.progress || null;
-  var loaner = params.loaner;
+  // var loaner = params.loaner;
   console.log('eidebook:',params)
-  var sqlArr = [bookName, author, location, brief, progress, isLoan, loaner, bookId]
+  var sqlArr = [bookName, author, location, brief, progress, bookId]
   pool.getConnection(function (err, connection) { 
     connection.query(BookSQL.editBook,sqlArr ,function(err,result){
       if(err){

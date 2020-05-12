@@ -21,10 +21,7 @@ class Login extends React.Component{
 
   
   componentDidMount() {
-    // this.callAPI();
-
-    // this.$http.get('/user')
-    axios.get('http://localhost:3000/api/userInfo')
+    axios.get('http://localhost:9000/userInfo')
     .then((res) => {
       let user = res.data
       console.log('let ',user)
@@ -55,7 +52,6 @@ class Login extends React.Component{
         let history = this.props.history
         let id = users[i].userId
         history.push(`/homepage/${id}`);
-
         break ;
       }
     }
@@ -63,7 +59,6 @@ class Login extends React.Component{
       console.log('false!')
       this.loginError();
     }
-
   };
   
   onSelect() {

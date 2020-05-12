@@ -33,7 +33,6 @@ var str = '';
 
 //获取所有数据
 router.get('/', function(req, res){
-  // console.log('raeffae',dbConfig)
   pool.getConnection(function (err, connection) {
     connection.query(UserSQL.queryAll, function (err,result) {
       if(err){
@@ -43,10 +42,10 @@ router.get('/', function(req, res){
       console.log(str);  //数据库查询结果返回到result中
     });
     setTimeout(function(){
-  　　   connection.release();
-  　　 },200)
+      res.send(str);
+　　   connection.release();
+　　 },200)
   });
-  res.status(200).send('success');
 
   //数据库连接、数据操作
    /*  dbConfig.sqlConnection(UserSQL.queryAll,[],function (err,result) {
