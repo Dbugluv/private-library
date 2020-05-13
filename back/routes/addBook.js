@@ -21,7 +21,8 @@ var BookSQL = {
   editBook: 'UPDATE books SET bookName = ? , author = ? ,location = ?, brief = ?, progress =? WHERE bookId=?',
   selectByCategory: 'SELECT * FROM books WHERE bookType = ? AND ownedLibId = ?',
   selectByLibs: 'SELECT * FROM books WHERE ownedLibId = ?',
-  selectExcerpt: 'select * from books where excerpt !="" and ownerId_b = ?'
+  selectExcerpt: 'select * from books where excerpt !="" and ownerId_b = ?',
+  updateBookCover: 'update books set bookCover =? where bookId = ?'
 };
 
 var str = '';
@@ -220,7 +221,7 @@ router.get('/del', function(req, res){
   res.status(200).send('success');
 });
 
-//更新用户信息
+//更新摘要
 router.get("/updateBrief",function(req,res,next){
   var brief = req.query.brief;
   var id = req.query.bookId; // 需要修改的地方
@@ -257,6 +258,27 @@ router.get("/updateExcerpt",function(req,res,next){
         res.status(200).send('success');
   　　   connection.release();
   　　 },200);
+    });
+  })
+});
+
+//更新摘要
+router.get("/updateBookCover",function(req,res,next){
+  var bookCover = req.query.bookCover;
+  var bookId = req.query.bookId; // 需要修改的地方
+  console.log('brief',bookCover,'id',bookId);
+  pool.getConnection(function (err, connection) { 
+    connection.query(BookSQL.updateBookCover,[bookCover,bookId],function(err,result){
+      if(err){
+          res.send("修改失败 " + err);
+      }else {
+        str = JSON.stringify(result);
+        // res.send(str);
+        setTimeout(function(){
+          res.status(200).send('success');
+    　　   connection.release();
+    　　 },200);
+      }
     });
   })
 });

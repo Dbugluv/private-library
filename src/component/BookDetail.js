@@ -34,7 +34,8 @@ class BookDetail extends React.Component {
       inputValue: this.props.bookInfo.progress,
       isLoan: this.props.bookInfo.isLoan,
       excerptModalVisible: false,
-      brief: ''
+      brief: '',
+      payImgUrl: this.props.bookInfo.bookCover
     }
     let editIcon = <Tooltip placement="rightTop" title="编辑信息"><EditOutlined className={this.state.eidt ? 'clickItem' : ''} /></Tooltip>
     let excerptIcon = <Tooltip placement="rightTop" title="添加摘录"><FormOutlined /></Tooltip>
@@ -64,6 +65,7 @@ class BookDetail extends React.Component {
   }
 
   uploadChange = ({ file }) => {
+    console.log('file',file)
     if (file.status === 'uploading') {
       this.setState({ payImgLoading: true });
       return;
@@ -72,6 +74,7 @@ class BookDetail extends React.Component {
       let imgUrl = `https:${host}/${file.name}`
       upLoadedBook = imgUrl;
       console.log('imgurl',imgUrl)
+      // this.updateBookCover(imgUrl, bookId)
       this.setState({
         payImgUrl: `${host}/${file.name}`,
         payImgLoading: false,
@@ -79,6 +82,18 @@ class BookDetail extends React.Component {
     }
   }
 
+  updateBookCover(bookCover,bookId) {
+    var baseUrl = 'http://localhost:9000/books/updateBookCover';
+    console.log('updateBookCover',bookCover,bookId)
+    axios.get(`${baseUrl}?bookCover=${bookCover}&bookId=${bookId}`)
+      .then( res => {
+        if(res.status === 200 && res.data === 'success'){
+          message.success('更新图书封面成功！');
+        } else {
+          message.error('更新图书封面失败！');
+        }
+      })
+  }
   delBook(id) {
     // console.log('thisbokkid',id)
     var baseUrl = 'http://localhost:9000/books/del';
@@ -108,7 +123,7 @@ class BookDetail extends React.Component {
       case 1: // 添加摘录
         !this.state.edit &&
         this.setState({
-          excerptShow: true
+          excerptShow: !this.state.excerptShow
         });
         break;
       case 2: // 查看摘录集
@@ -239,18 +254,38 @@ class BookDetail extends React.Component {
           // onOk={this.delBook.bind(this,bookInfo.bookId)}
           onCancel={this.modalCancel.bind(this)}
         >
-          <p>{bookInfo.excerpt}</p>
+          <p>{bookInfo.excerpt || '您还没有在此书添加摘录哦～'}</p>
       </Modal>
       <div className="single-book-detail">
+
         <div className="imagecover">
           <img src={bookInfo.bookCover || defaultBookCover} />
+
+          {/* <Upload
+            action={host}
+            accept="image/*"
+            listType="picture-card"
+            className="avatar-uploader"
+            showUploadList={false}
+            beforeUpload={this.beforeUpload.bind(this)}
+            onChange={this.uploadChange.bind(this)} 
+            data={{
+              key: "${filename}",
+              policy: policyBase64,
+              OSSAccessKeyId: accessKeyId,
+              success_action_status: 200,
+              signature,
+            }}           
+          >
+            { this.state.payImgUrl ? <img src={bookInfo.bookCover || defaultBookCover} /> : uploadButton}
+          </Upload> */}
         </div>
         <div className="single-book-info">
           {
             !this.state.edit ?
             <div>
               <span className="bookName">「{bookInfo.bookName}」</span><br/>
-              <span className="author">author：{bookInfo.author}</span><br/>
+              <span className="author">作者：{bookInfo.author}</span><br/>
               <span className="buyTime">购入时间：{bookInfo.buyTime}</span><br/>
               <Divider />
               <p className="brief">摘要：{bookInfo.brief !== undefined && bookInfo.brief}</p>
@@ -267,30 +302,6 @@ class BookDetail extends React.Component {
               initialValues={bookInfo}
               onFinish={this.onFinish.bind(this)}
             >
-              {/* <Form.Item label="图书封面" name="bookCover">
-                <Upload
-                  action={host}
-                  accept="image/*"
-                  listType="picture-card"
-                  className="avatar-uploader"
-                  showUploadList={false}
-                  beforeUpload={this.beforeUpload.bind(this)}
-                  onChange={this.uploadChange.bind(this)}
-                  data={{
-                    key: "${filename}",
-                    policy: policyBase64,
-                    OSSAccessKeyId: accessKeyId,
-                    success_action_status: 200,
-                    signature,
-                  }}
-              >
-                {
-                    this.state.payImgUrl ? 
-                    <img src={ this.state.payImgUrl} alt="avatar" style={{ width: '100%' }} /> :
-                    uploadButton   
-                }
-              </Upload> 
-              </Form.Item> */}
               <Form.Item className="editItem" label="书籍名称" name="bookName"
                 rules={[
                   {
@@ -304,22 +315,9 @@ class BookDetail extends React.Component {
               <Form.Item className="editItem" label="作者" name="author">
                 <Input autoComplete="off" value={bookInfo.author} defaultValue={bookInfo.author} />
               </Form.Item>
-              {/* <Form.Item className="editItem" label="是否已被借阅" name='isLoan'>
-                <Radio.Group onChange={this.loadChange} style={{fontSize:'12px'}}>
-                  <Radio style={{fontSize:'12px'}} value={'1'}>是</Radio>
-                  <Radio style={{fontSize:'12px'}} value={'0'}>否</Radio>
-                </Radio.Group>
-              </Form.Item> */}
-              {/* { 
-                this.state.isLoan === '1' ?
-                  <Form.Item className="editItem" label="借阅人" name="loaner">
-                    <Input placeholder="请输入借阅人名称" defaultValue={bookInfo.loaner}/>
-                  </Form.Item>
-                :  */}
-                <Form.Item className="editItem" label="存放位置" name="location">
-                  <Input placeholder="请输入书籍放置位置（参考：某市家中书柜第二层）" defaultValue={bookInfo.location} />
-                </Form.Item>
-              {/* } */}
+              <Form.Item className="editItem" label="存放位置" name="location">
+                <Input placeholder="请输入书籍放置位置（参考：某市家中书柜第二层）" defaultValue={bookInfo.location} />
+              </Form.Item>
               <Form.Item className="editItem" label="阅读进度">
                 <Row>
                   <Col span={12}>
