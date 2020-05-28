@@ -7,9 +7,8 @@ import BookDetail from './BookDetail'
 import 'antd/dist/antd.css';
 import './Bookshow.scss'
 import noContentImg from '../img/no-content.jpg'
-import book2 from '../img/book1.jpg'
-import book3 from '../img/book3.jpeg'
-import book4 from '../img/book4.jpg'
+import defaultBookCover from '../img/default.jpg'
+
 import { format } from 'mysql';
 const { Search } = Input;
 
@@ -258,7 +257,7 @@ class Bookshow extends React.Component {
                       this.state.detailOn[item.bookId] ? 
                         <BookDetail bookInfo={item} bookChanged={ this.getBookByCategory.bind(this,'',this.defaultLibId)} /> : 
                         <div key={item.bookId} className="single-book" onClick={this.showDetail.bind(this,item.bookId)}>
-                          <img src={item.bookCover} />
+                          <img src={item.bookCover || defaultBookCover} />
                           <span>{item.bookName}</span>
                         </div>)
                   }

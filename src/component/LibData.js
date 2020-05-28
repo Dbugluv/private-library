@@ -24,9 +24,11 @@ class LibData extends React.Component{
       readProgress: [],
       userInfo: {}
     }
+    this.user = this.props.userInfo;
   }
 
   componentWillReceiveProps(nextProps) {
+    console.log('nextProps',nextProps)
     if(this.state.userInfo !== nextProps.userInfo){
       console.log('nextprops',nextProps.userInfo)
       this.setState({
@@ -37,9 +39,8 @@ class LibData extends React.Component{
   }
 
   getBook() {
-    console.log('getBookuserID',this.state.userInfo)
     let baseUrl = 'http://localhost:9000/books/queryByUserId'
-    axios.get(`${baseUrl}?ownerId_b=${this.state.userInfo.userId}`)
+    axios.get(`${baseUrl}?ownerId_b=${this.user.userId}`)
     .then(
       res => {
         console.log('getBookgetBookgetBook',res)
@@ -52,8 +53,7 @@ class LibData extends React.Component{
 
   getBookCount() {
     var baseUrl = 'http://localhost:9000/statistics/getBookCount'
-    let userId = this.state.userInfo.userId
-    console.log('热瓦甫',userId)
+    let userId = this.user.userId
     axios.get(`${baseUrl}?ownerId_b=${userId}&ownerId=${userId}`)
     .then(
       res => {
@@ -90,7 +90,7 @@ class LibData extends React.Component{
   getLibs() {
     var baseUrl = 'http://localhost:9000/library/ownerLib'
     let libs = [];
-    axios.get(`${baseUrl}?ownerId=${this.state.userInfo.userId}`)
+    axios.get(`${baseUrl}?ownerId=${this.user.userId}`)
      .then(
        (res) => {
         // console.log('getLibs:',res);
@@ -105,7 +105,7 @@ class LibData extends React.Component{
 
   getProgress() {
     var baseUrl = 'http://localhost:9000/statistics/getBookProgress';
-    let userId = this.state.userInfo.userId;
+    let userId = this.user.userId;
     console.log('getProgress,userId: ',userId)
     axios.get(`${baseUrl}?userId=${userId}`)
     .then(
@@ -118,6 +118,9 @@ class LibData extends React.Component{
   }
 
   componentDidMount() {
+    setTimeout(() => {
+      this.getBook();
+    }, 200);
     setTimeout(() => {
       this.getBookCount();
     }, 350);
@@ -132,7 +135,6 @@ class LibData extends React.Component{
     setTimeout(() => {
       this.getProgress();
     }, 400);
-  
   }
 
   AnalysisBookData() {
@@ -458,6 +460,7 @@ getTimeOption() {
   render() {
     let user = this.props.userInfo
     let progressShow = this.state.progress[0] === undefined ? 1 : this.state.progress[0].count
+    console.log('render->user',user)
     return (
       <div className="content-style libData">
         <div className="userWelcom">

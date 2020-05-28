@@ -41,8 +41,16 @@ class Register extends React.Component{
     })
   }
 
-  onSelect() {
-    console.log('...')
+  onSelect(index,indexPath) {
+    if (index === '1') {
+      let history = this.props.history;
+      history.push('/');
+    } else if (index === '2') {
+      let history = this.props.history;
+      history.push('/register');
+    } else if (index === '3') {
+      
+    }
   }
 
   handleReset() {
@@ -82,10 +90,10 @@ class Register extends React.Component{
         <div className="main__bg"></div>
         <div className="header">
           <span className="title">私人藏书管理系统</span>
-          <Menu defaultActive="1" className="el-menu-demo" mode="horizontal" onSelect={this.onSelect.bind(this)}>
-            <Menu.Item index="1">注册</Menu.Item>
-            <Menu.Item index="2">关于</Menu.Item>
-            <Menu.Item index="3">帮助</Menu.Item>
+          <Menu defaultActive="2" className="el-menu-demo" mode="horizontal" onSelect={this.onSelect.bind(this)}>
+            <Menu.Item index="1">登陆</Menu.Item>
+            <Menu.Item index="2">注册</Menu.Item>
+            <Menu.Item index="3">关于</Menu.Item>
           </Menu>
         </div>
 

@@ -177,7 +177,7 @@ router.get('/add', function(req, res){
   var brief = params.brief || null;
   var buyTime = params.buyTime || null;
   var progress = params.progress || null;
-  var ownerId_b = params.userId;
+  var ownerId_b = params.ownerId_b;
 
   var sqlSuccess;
   console.log('book-params: ',params)
@@ -189,8 +189,8 @@ router.get('/add', function(req, res){
         res.send('fail');
       }
       var str = JSON.stringify(result);
-      console.log(result.affectedRows);  //数据库查询结果返回到result中
-      sqlSuccess = result.affectedRows;
+      console.log(str);  //数据库查询结果返回到result中
+      // sqlSuccess = result.affectedRows;
       // res.send('ssqlsuccess' + sqlSuccess);
     });
     if(!err){

@@ -46,6 +46,7 @@ class Login extends React.Component{
     console.log('Received values of form: ', values);
     let users = this.state.userInfo;
     for( var i = 0; i < users.length; i++){
+      console.log(values.userNumber == users[i].userNumber,values.password == users[i].password)
       if(values.userNumber == users[i].userNumber && values.password == users[i].password){
         // console.log('登陆成功');
         this.loginsuccess();
@@ -61,8 +62,16 @@ class Login extends React.Component{
     }
   };
   
-  onSelect() {
-    console.log('...')
+  onSelect(index,indexPath) {
+    if (index === '1') {
+      let history = this.props.history;
+      history.push('/');
+    } else if (index === '2') {
+      let history = this.props.history;
+      history.push('/register');
+    } else if (index === '3') {
+      
+    }
   }
 
   registerChange() {
@@ -79,8 +88,8 @@ class Login extends React.Component{
           <span className="title">私人藏书管理系统</span>
           <Menu defaultActive="1" className="el-menu-demo" mode="horizontal" onSelect={this.onSelect.bind(this)}>
             <Menu.Item index="1">登陆</Menu.Item>
-            <Menu.Item index="2">关于</Menu.Item>
-            <Menu.Item index="3">帮助</Menu.Item>
+            <Menu.Item index="2">注册</Menu.Item>
+            <Menu.Item index="3">关于</Menu.Item>
           </Menu>
         </div>
         <div className="content">

@@ -13,7 +13,7 @@ import './Homepage.scss'
 import 'element-theme-default';
 import axios from 'axios';
 import LibData from '../component/LibData';
-import { tuple } from 'antd/lib/_util/type';
+import AddLib from '../component/AddLib';
 const defaultAvatar = 'https://plms.oss-cn-shanghai.aliyuncs.com/defaultAva.jpg'
 
 
@@ -52,7 +52,7 @@ class Homepage extends React.Component{
   }
   getUserInfo() {
     var baseUrl = 'http://localhost:9000/userInfo/getOne';
-    console.log('usserid',this.userId)
+    // console.log('usserid',this.userId)
     axios.get(`${baseUrl}?userId=${this.userId}`)
       .then(res => {
         // console.log('getUserInfo:',res)
@@ -258,8 +258,9 @@ class Homepage extends React.Component{
               
               <Menu.Item index="0" className="userInfo">
                 <Popover
+                  style={{width:'150px'}}
                   placement="rightTop"
-                  content={ <a onClick={this.logOut.bind(this)}>登出</a> }
+                  content={ <a onClick={this.logOut.bind(this)}> &emsp;&emsp;用户登出&emsp;&emsp;</a> }
                   visible={this.state.visible}
                   onVisibleChange={this.handleVisibleChange.bind(this)}
                 >
@@ -277,7 +278,7 @@ class Homepage extends React.Component{
               </Menu.ItemGroup>
               <div className="line"></div>
               <Menu.ItemGroup>
-                <Menu.Item index="2-2">添加图书集</Menu.Item>
+                <Menu.Item index="2-2">添加 / 删除图书集</Menu.Item>
               </Menu.ItemGroup>
               
             </Menu.SubMenu>
@@ -300,51 +301,7 @@ class Homepage extends React.Component{
         }
         {
           this.state.addLibraryOn ? (
-            <div className="content-style addLibrary">
-              <h1>添加图书集</h1>
-
-              <Form ref={this.formRef} 
-                    name="addLib"
-                    className="addLibrarys"
-                    layout = "vertical"
-                    onFinish={this.onFinish.bind(this)}>
-                <Form.Item 
-                  name="libName"
-                  label="图书集名称"
-                  rules={[
-                    {
-                      required: true,
-                      message: '请输入您的图书集名称！',
-                    },
-                  ]}>
-                  <Input placeholder="请输入您的图书集名称" type="bookName" autoComplete="off" />
-                </Form.Item>
-                <Form.Item name="libClass" label="图书集划分依据"
-                //  rules={[
-                //   {
-                //     required: true,
-                //     message: '请输入您的图书集分类！',
-                //   },
-                // ]}
-                >
-                 <Radio.Group
-                    options={this.state.owenedLibOptions}
-                    value={this.state.checkedOwnedLibList}
-                    // onChange={this.handleCheckChange.bind(this)}
-                  />
-                </Form.Item>
-                <Form.Item 
-                  label="存放位置"
-                  name="location"
-                  >
-                  <Input placeholder="请输入您图书集所处的位置" onChange={this.onChange.bind(this, 'location')}></Input>
-                </Form.Item>
-                <Form.Item className="btn-group">
-                  <Button type="primary" htmlType="submit" >提交</Button>
-                  <Button htmlType="reset" onClick={this.handleReset.bind(this)}>重置</Button>
-                </Form.Item>
-              </Form>
-            </div>
+            <AddLib userId={this.userId}/>
           ) : ''
         }
         {
