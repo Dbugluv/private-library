@@ -31,7 +31,7 @@ class BookDetail extends React.Component {
       edit: false,
       excerptShow: false,
       modalVisible: false,
-      inputValue: this.props.bookInfo.progress,
+      inputValue: parseInt(this.props.bookInfo.progress, 10),
       isLoan: this.props.bookInfo.isLoan,
       excerptModalVisible: false,
       brief: '',
@@ -229,6 +229,7 @@ class BookDetail extends React.Component {
 
   render() {
     let bookInfo = this.props.bookInfo;
+    let progress = parseInt( bookInfo.progress, 10)
     const { inputValue } = this.state;
     const uploadButton = (
       <div>
@@ -238,6 +239,7 @@ class BookDetail extends React.Component {
         <div className="ant-upload-text">Upload</div>
       </div>
     );
+    console.log('progress',parseInt(this.props.bookInfo.progress))
     return (
     <div style={{display: 'inline'}}>
        <Modal
@@ -321,12 +323,12 @@ class BookDetail extends React.Component {
               <Form.Item className="editItem" label="阅读进度">
                 <Row>
                   <Col span={12}>
-                    <Slider min={0} max={100} onChange={this.progressChange.bind(this)} defaultValue={bookInfo.progress}
+                    <Slider min={0} max={100} onChange={this.progressChange.bind(this)} 
                       value={ inputValue }
                     />
                   </Col>
                   <Col span={4}>
-                    <InputNumber min={0} max={100} style={{ margin: '0 16px' }}
+                    <InputNumber min={0} max={100} style={{ margin: '0 16px' }} 
                       value={inputValue} onChange={this.progressChange.bind(this)}
                     />
                   </Col>

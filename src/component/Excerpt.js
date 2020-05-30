@@ -3,6 +3,7 @@ import React from 'react'
 import axios from 'axios'
 import { Form, Input, Button, message, Divider } from 'antd';
 import './Excerpt.scss'
+import noContentImg from '../img/no-content.jpg'
 
 
 class Excerpt extends React.Component{
@@ -35,6 +36,7 @@ class Excerpt extends React.Component{
     return (
       <div className="content-style Excerpt">
         {
+          this.state.books.length !==0 ?
           this.state.books.map( item => {
             return (
               <div className = 'single_excerpt'>
@@ -43,6 +45,12 @@ class Excerpt extends React.Component{
               </div>
             );
           })
+          : 
+          <div className="no-content-hint">
+            <img src={noContentImg} />
+            <span>您还没有添加任何摘录哦!</span><br />
+            <span>赶快去记录您的灵感吧!</span>
+        </div>
         }
          
       </div>

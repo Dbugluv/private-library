@@ -242,7 +242,7 @@ class Bookshow extends React.Component {
         value={this.state.checkedBookTypeList}
         onChange={this.handlebookTypeChange.bind(this)}
       /> 
-        <Tabs className="tab" defaultActiveKey="2">
+        <Tabs className="tab" defaultActiveKey="1">
           <TabPane
             tab={<span><AppstoreOutlined />缩略图表</span>}
             key="1"

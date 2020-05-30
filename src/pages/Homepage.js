@@ -180,12 +180,21 @@ class Homepage extends React.Component{
   }
 
   showBook() {
-    !this.state.noLibHint &&
+    !this.state.noLibHint ?
     this.setState({
       noLibHint:false,
       addLibraryOn: false,
       addBookOn: false,
       showBookOn: true,
+      showUserInfo: false,
+      libDataShow: false,
+      excerptShow: false
+    }) : 
+    this.setState({
+      noLibHint: true,
+      addLibraryOn: false,
+      addBookOn: false,
+      showBookOn: false,
       showUserInfo: false,
       libDataShow: false,
       excerptShow: false
@@ -319,7 +328,7 @@ class Homepage extends React.Component{
         }
 
         {
-          this.state.noLibHint ?
+          this.state.noLibHint && !this.state.addLibraryOn ?
           <div className="content-style no-content-hint">
             <img src={noContentImg} />
             <span>您还没有创建图书集哦!</span><br />

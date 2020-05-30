@@ -127,7 +127,7 @@ router.get('/delLib', function(req, res){
         res.send(err.message);
       } else  {
         setTimeout(function(){
-          res.send(str);
+          res.status(200).send('success');
     　　   connection.release();
     　　 },200)
       }

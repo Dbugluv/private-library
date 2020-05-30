@@ -78,22 +78,26 @@ class AddLib extends React.Component{
   delLib() {
     console.log('del->', this.state.selectedLib)
     var baseUrl = 'http://localhost:9000/library/delLib';
-    axios.get(`${baseUrl}?libId=${this.state.selectedLib.libId}`)
+    this.state.selectedLib && this.state.selectedLib.libId
+    && axios.get(`${baseUrl}?libId=${this.state.selectedLib.libId}`)
       .then( res => {
+        console.log('ressss',typeof(res.data),res.data)
         if(res.status === 200 && res.data === 'success'){
           message.success('删除成功！');
         } else {
-          if( res.data.match('ER_ROW_IS_REFERENCED_2'))
-            message.error('此图书集下已包含藏书内容，不可删除！')
-          else 
-            message.error('删除失败！')
+          // res.data.match('ER_ROW_IS_REFERENCED_2') 
+          res.data.match('ER_ROW_IS_REFERENCED_2') ? 
+            message.error('此图书集下已包含藏书内容，不可删除！') : message.error('删除失败！')
         }
       })
   }
 
   render() {
     const { Option } = Select;
-    let defaultSelectValue = this.state.selectedLib.libName || '';
+    console.log('this.state.selectedLib',this.state.selectedLib)
+    let selectedLib = this.state.selectedLib;
+    let defaultSelectValue;
+    selectedLib ? defaultSelectValue = this.state.selectedLib.libName : defaultSelectValue = '';
 
     return (
       <div className="content-style addLibrary">
@@ -141,27 +145,35 @@ class AddLib extends React.Component{
           </Form.Item>
         </Form>
         <Divider />
-        <h1>删除图书集</h1>
-        <Select
-          showSearch
-          value={this.state.selectedLib.value || defaultSelectValue}
-          className="select"
-          placeholder="选择你的图书集"
-          optionFilterProp="children"
-          onChange={this.selectChange.bind(this)}
-          // onFocus={this.onFocus.bind(this)}
-          // onBlur={this.onBlur.bind(this)}
-          // onSearch={this.onSearch.bind(this)}
-        >
         {
-           this.state.librarys.map((item,index) => {
-            return (
-              <Option key={item.libId} value={item.libName}>{item.libName}</Option>
-            )
-          })
-         }
-      </Select>
-      <Button onClick={this.delLib.bind(this)}>删除</Button>
+          this.state.selectedLib ? 
+          (
+            <div>
+              <h1>删除图书集</h1>
+              <Select
+                showSearch
+                value={this.state.selectedLib.value || defaultSelectValue}
+                className="select"
+                placeholder="选择你的图书集"
+                optionFilterProp="children"
+                onChange={this.selectChange.bind(this)}
+                // onFocus={this.onFocus.bind(this)}
+                // onBlur={this.onBlur.bind(this)}
+                // onSearch={this.onSearch.bind(this)}
+              >
+              {
+                this.state.librarys.map((item,index) => {
+                  return (
+                    <Option key={item.libId} value={item.libName}>{item.libName}</Option>
+                  )
+                })
+              }
+            </Select>
+            <Button onClick={this.delLib.bind(this)}>删除</Button>
+          </div>
+          ) : ''
+        }
+        
       </div>
     );
   }
