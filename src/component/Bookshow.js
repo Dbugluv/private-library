@@ -88,8 +88,9 @@ class Bookshow extends React.Component {
     axios.get(`http://localhost:9000/books/queryALl`)
     // axios.get(`http://localhost:3000/api/books`)
     .then((res)=>{
-      console.log('bookshow:res',res)
+      console.log('bookshow:res!!!',res)
       this.setState({
+        currentPage: 1,
         bookLists: res.data,
         showPageBookItems: res.data.slice(0,10)
       })
@@ -128,7 +129,7 @@ class Bookshow extends React.Component {
   }
 
   getBookByCategory(booktype, ownedLibId) {
-    console.log('getbookvatrgoru:',booktype,ownedLibId)
+    // console.log('getbookvatrgoru:',booktype,ownedLibId)
     if( booktype === '所有' || booktype === '') {
       var baseUrl = 'http://localhost:9000/books/selectByLibs'
       axios.get(`${baseUrl}?ownedLibId=${ownedLibId}`)
@@ -136,6 +137,7 @@ class Bookshow extends React.Component {
         res => {
           console.log('getBookBylibs-res:', res)
           this.setState({
+            currentPage: 1,
             bookLists: res.data,
             showPageBookItems: res.data.slice(0,12)
           })
@@ -149,8 +151,9 @@ class Bookshow extends React.Component {
       axios.get(`${baseUrl}?bookType=${booktype}&ownedLibId=${ownedLibId}`)
       .then(
         res => {
-          console.log('getBookByCategory-res:', res)
+          // console.log('getBookByCategory-res:', res)
           this.setState({
+            currentPage: 1,
             bookLists: res.data,
             showPageBookItems: res.data.slice(0,12)
           })
@@ -178,10 +181,12 @@ class Bookshow extends React.Component {
       .then((res) => {
         if(res && res.data){
           console.log('findBook:',res.data)
+          res.data.length !== 0 ?
           this.setState({
             showPageBookItems: res.data,
             activeKey : 2
           })
+          : message.error('未找到相关图书！')
         }
       })
     }
@@ -202,12 +207,12 @@ class Bookshow extends React.Component {
   render() {
     const { TabPane } = Tabs;
     const { Option } = Select;
-    console.log('bookshow->showpagebookitems',this.state.showPageBookItems.length);
+    // console.log('bookshow->showpagebookitems',this.state.showPageBookItems.length);
     // console.log('this.state.selectedLib',this.state.selectedLib,'checkedBookTypeList',this.state.checkedBookTypeList)
     let selectedLib = this.state.selectedLib || '';
     let defaultSelectValue = this.state.selectedLib.libName || '';
     const bookCount = this.state.bookLists.length;
-    // console.log('currentPage',this.state.currentPage)
+    console.log('currentPage',this.state.currentPage)
 
     return (
       <div className="content-style showBook">
@@ -258,14 +263,14 @@ class Bookshow extends React.Component {
                         <BookDetail bookInfo={item} bookChanged={ this.getBookByCategory.bind(this,'',this.defaultLibId)} /> : 
                         <div key={item.bookId} className="single-book" onClick={this.showDetail.bind(this,item.bookId)}>
                           <img src={item.bookCover || defaultBookCover} />
-                          <span>{item.bookName}</span>
+                          <span style={{ fontSize: '15px', display:'block', marginTop:'8px'}}>{item.bookName}</span>
                         </div>)
                   }
                 })
                 :
                 <div className="no-content-hint">
                     <img src={noContentImg} />
-                    <span>您还没有添加任何图书哦!</span><br />
+                    <span>这里还没有图书哦！</span><br />
                     <span>快去为您的藏书添砖加瓦吧!</span>
                 </div>
                

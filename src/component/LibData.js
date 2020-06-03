@@ -59,7 +59,7 @@ class LibData extends React.Component{
       res => {
         console.log('getBookCount',res)
         let booksTotalCnt = res.data[0].count;
-        let booksfromLib = res.data.slice(1);
+        let booksfromLib = res.data.slice(2);
         let booksFromLib = [];
         for( let item of booksfromLib) {
           booksFromLib.push(item.count);
@@ -120,10 +120,10 @@ class LibData extends React.Component{
   componentDidMount() {
     setTimeout(() => {
       this.getBook();
-    }, 200);
+    }, 100);
     setTimeout(() => {
       this.getBookCount();
-    }, 350);
+    }, 200);
 
     setTimeout(() => {
       this.AnalysisBookData()
@@ -134,7 +134,7 @@ class LibData extends React.Component{
     }, 300);
     setTimeout(() => {
       this.getProgress();
-    }, 400);
+    }, 600);
   }
 
   AnalysisBookData() {

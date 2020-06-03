@@ -116,7 +116,7 @@ class Login extends React.Component{
               label="账号"
               rules={[ {pattern: /^\d*$/, message: '请输入数字',required: true} ]}
             >
-              <Input placeholder="userNumber" />
+              <Input autocomplete="off" placeholder="userNumber" />
             </Form.Item>
             <Form.Item
               name="password"
@@ -129,7 +129,7 @@ class Login extends React.Component{
               ]}
             >
               <Input
-                type="password"
+                type="password" autocomplete="off"
                 placeholder="Password"
               />
             </Form.Item>

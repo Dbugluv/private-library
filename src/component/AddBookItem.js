@@ -276,7 +276,7 @@ class AddBookItem extends React.Component {
           />
         </Form.Item>
           <Form.Item label="存放位置" name="location">
-            <Input placeholder="请输入书籍放置位置（参考：某市家中书柜第二层）" />
+            <Input autocomplete="off" placeholder="请输入书籍放置位置（参考：某市家中书柜第二层）" />
           </Form.Item>
         <Form.Item label="阅读进度" name="progress">
           <Row>

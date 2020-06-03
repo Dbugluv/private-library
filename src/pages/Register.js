@@ -117,14 +117,14 @@ class Register extends React.Component{
               label="账号"
               rules={[ {pattern: /^\d*$/, message: '请输入数字',required: true} ]}
             >
-              <Input placeholder="请输入您的帐号（最好以手机号为准）" />
+              <Input autocomplete="off" placeholder="请输入您的帐号（最好以手机号为准）" />
             </Form.Item>
             <Form.Item
               name="userName"
               label="昵称"
-              rules={[ {required: true} ]}
+              rules={[ {required: true,message: '请输入昵称',} ]}
             >
-              <Input placeholder="请输入您的用户昵称" />
+              <Input autocomplete="off" placeholder="请输入您的用户昵称" />
             </Form.Item>
             <Form.Item
               name="password"
@@ -137,7 +137,7 @@ class Register extends React.Component{
               ]}
             >
               <Input
-                type="password"
+                type="password" autocomplete="off"
                 placeholder="请输入您的密码"
               />
             </Form.Item>
@@ -152,7 +152,7 @@ class Register extends React.Component{
               ]}
             >
               <Input
-                type="password"
+                type="password" autocomplete="off"
                 placeholder="请再次输入您设置的密码"
               />
             </Form.Item>

@@ -65,7 +65,7 @@ class BookDetail extends React.Component {
   }
 
   uploadChange = ({ file }) => {
-    console.log('file',file)
+    // console.log('file',file)
     if (file.status === 'uploading') {
       this.setState({ payImgLoading: true });
       return;
@@ -114,7 +114,7 @@ class BookDetail extends React.Component {
   RightMenu(index,id) {
     switch(index) {
       case 0: // 编辑
-        console.log('bookdetail: ',this.props.bookInfo)
+        // console.log('bookdetail: ',this.props.bookInfo)
         !this.state.excerptShow &&
         this.setState({
           edit: !this.state.edit
@@ -229,7 +229,6 @@ class BookDetail extends React.Component {
 
   render() {
     let bookInfo = this.props.bookInfo;
-    let progress = parseInt( bookInfo.progress, 10)
     const { inputValue } = this.state;
     const uploadButton = (
       <div>
@@ -239,7 +238,6 @@ class BookDetail extends React.Component {
         <div className="ant-upload-text">Upload</div>
       </div>
     );
-    console.log('progress',parseInt(this.props.bookInfo.progress))
     return (
     <div style={{display: 'inline'}}>
        <Modal
@@ -247,12 +245,16 @@ class BookDetail extends React.Component {
           visible={this.state.modalVisible}
           onOk={this.delBook.bind(this,bookInfo.bookId)}
           onCancel={this.modalCancel.bind(this)}
+          okText="确认"
+          cancelText="取消"
         >
           <p>确定要删除这本书吗？</p>
       </Modal>
       <Modal
           title="摘录集"
           visible={this.state.excerptModalVisible}
+          okText="确认"
+          cancelText="取消"
           // onOk={this.delBook.bind(this,bookInfo.bookId)}
           onCancel={this.modalCancel.bind(this)}
         >
