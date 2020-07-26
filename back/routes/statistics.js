@@ -12,7 +12,7 @@ var StatSQL = {
   getBookCount: 
   'select count(*) as count from books where ownerId_b = ? UNION SELECT COUNT(*) FROM librarys where ownerId = ? UNION SELECT COUNT(*) FROM books where ownerId_b = ? GROUP BY ownedLibId',
   getBookType: 'SELECT COUNT(*) as count FROM books GROUP BY bookType ',
-  getBookProgress:'SELECT COUNT(*) as count FROM books WHERE progress = 0 AND ownerId_b =? UNION SELECT COUNT(*) FROM books WHERE progress > 0 AND progress < 30 AND ownerId_b =? UNION SELECT COUNT(*) FROM books WHERE progress >= 30 AND progress < 60 AND ownerId_b =? UNION SELECT COUNT(*) FROM books WHERE progress >= 60 AND progress < 100 AND ownerId_b =? UNION SELECT COUNT(*) FROM books WHERE progress =100 AND ownerId_b =?'
+  // getBookProgress:'SELECT COUNT(*) as count FROM books WHERE progress = 0 AND ownerId_b =? UNION SELECT COUNT(*) FROM books WHERE progress > 0 AND progress < 30 AND ownerId_b =? UNION SELECT COUNT(*) FROM books WHERE progress >= 30 AND progress < 60 AND ownerId_b =? UNION SELECT COUNT(*) FROM books WHERE progress >= 60 AND progress < 100 AND ownerId_b =? UNION SELECT COUNT(*) FROM books WHERE progress =100 AND ownerId_b =?'
 };
 
 var str = '';
